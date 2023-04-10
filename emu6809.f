@@ -58,13 +58,23 @@ $F001 CONSTANT OU_CHAR
 DEFER READ_HOOK
 DEFER WRIT_HOOK
 
+\ Target memory operations
+
 : TC@ ( addr -- byte ) $FFFF AND   READ_HOOK ( ELSE ) RAM + C@ ;
 : TC! ( byte addr -- ) $FFFF AND   WRIT_HOOK ( ELSE ) RAM + C! ;
+
 : TW@  ( addr -- word )
-  $FFFF AND
-  DUP TC@ $100 *  \ HI byte
-  SWAP 1+ TC@     \ LO byte
+  >R
+  R@    TC@ 8 LSHIFT \ HI byte
+  R> 1+ TC@          \ LO byte
   OR
+;
+
+: TW!  ( word addr -- )
+  >R
+  $100 /MOD ( LO HI )
+  R@    TC!
+  R> 1+ TC!
 ;
 
 : CHAR_IN? ( addr -- byte ) DUP IN_CHAR  = IF DROP GETC RDROP THEN ;
@@ -174,7 +184,7 @@ $01 VALUE 'C    \ Carry
 : 'DP  ( -- addr ) BYTE@ _DP C@  8 LSHIFT OR ;   \ Direct Addressing
 : 'EA  ( -- addr ) WORD@ ;                       \ Extended Addressing
 
-: ?() ( addr b -- addr ) $10 AND IF TW@ THEN ;   \ apply indirection if b=1
+: ?[] ( addr b -- addr ) $10 AND IF TW@ THEN ;   \ apply indirection if b=1
 
 \ Sign extension words
 : SIGNEX5 DUP $10 AND IF $FFE0 OR THEN ; \ 5 bits --> 16 bits
@@ -194,18 +204,18 @@ $01 VALUE 'C    \ Carry
     R@ $F AND \ 4 lsb indicate mode
     CASE
       ( ,R+          ) %0000 OF DUP W@ DUP 1+ ROT W!          ENDOF
-      ( ,R++         ) %0001 OF DUP W@ DUP 2+ ROT W!   R@ ?() ENDOF
+      ( ,R++         ) %0001 OF DUP W@ DUP 2+ ROT W!   R@ ?[] ENDOF
       ( ,-R          ) %0010 OF DUP W@ 1- DUP ROT W!          ENDOF
-      ( ,--R         ) %0011 OF DUP W@ 1- DUP ROT W!   R@ ?() ENDOF
-      ( ,R           ) %0100 OF DUP W@                 R@ ?() ENDOF
-      ( A,R          ) %0110 OF DUP W@ _A C@ SIGNEX8 + R@ ?() ENDOF
-      ( B,R          ) %0101 OF DUP W@ _B C@ SIGNEX8 + R@ ?() ENDOF
-      ( ,R +  8b off ) %1000 OF DUP W@ BYTE@ SIGNEX8 + R@ ?() ENDOF
-      ( ,R + 16b off ) %1001 OF DUP W@ WORD@         + R@ ?() ENDOF
-      ( D,R          ) %1011 OF DUP W@ _D W@         + R@ ?() ENDOF
-      ( ,PC + 8b off ) %1100 OF LASTPC BYTE@ SIGNEX8 + R@ ?() ENDOF
-      ( ,PC +16b off ) %1101 OF LASTPC WORD@         + R@ ?() ENDOF
-      ( [,Addr]      ) %1111 OF                        R@ ?() ENDOF
+      ( ,--R         ) %0011 OF DUP W@ 1- DUP ROT W!   R@ ?[] ENDOF
+      ( ,R           ) %0100 OF DUP W@                 R@ ?[] ENDOF
+      ( A,R          ) %0110 OF DUP W@ _A C@ SIGNEX8 + R@ ?[] ENDOF
+      ( B,R          ) %0101 OF DUP W@ _B C@ SIGNEX8 + R@ ?[] ENDOF
+      ( ,R +  8b off ) %1000 OF DUP W@ BYTE@ SIGNEX8 + R@ ?[] ENDOF
+      ( ,R + 16b off ) %1001 OF DUP W@ WORD@         + R@ ?[] ENDOF
+      ( D,R          ) %1011 OF DUP W@ _D W@         + R@ ?[] ENDOF
+      ( ,PC + 8b off ) %1100 OF LASTPC BYTE@ SIGNEX8 + R@ ?[] ENDOF \ LASTPC or _PC W@ ??
+      ( ,PC +16b off ) %1101 OF LASTPC WORD@         + R@ ?[] ENDOF \ LASTPC or _PC W@ ??
+      ( [,Addr]      ) %1111 OF WORD@                  TW@    ENDOF
     ENDCASE
   THEN
   R> DROP
@@ -213,46 +223,60 @@ $01 VALUE 'C    \ Carry
 ;
 \ Opcodes definitions
 
-:NONAME ( ABX   inh ) ; $3A BIND
+:NONAME ( ABX   inh ) _X W@ _B C@ _X W! ; $3A BIND
+
+:NONAME ( ANDCC imm ) _CC C@ BYTE@ AND _CC C! ; $1C BIND
+:NONAME ( ORCC  imm ) _CC C@ BYTE@ OR  _CC C! ; $1A BIND
+
 :NONAME ( ADCA  imm ) ; $89 BIND
 :NONAME ( ADCA  dir ) ; $99 BIND
-:NONAME ( ADCA  ind ) ; $A9 BIND
 :NONAME ( ADCA  ext ) ; $B9 BIND
+:NONAME ( ADCA  ind ) ; $A9 BIND
+
 :NONAME ( ADCB  imm ) ; $C9 BIND
 :NONAME ( ADCB  dir ) ; $D9 BIND
-:NONAME ( ADCB  ind ) ; $E9 BIND
 :NONAME ( ADCB  ext ) ; $F9 BIND
+:NONAME ( ADCB  ind ) ; $E9 BIND
+
 :NONAME ( ADDA  imm ) ; $8B BIND
 :NONAME ( ADDA  dir ) ; $9B BIND
-:NONAME ( ADDA  ind ) ; $AB BIND
 :NONAME ( ADDA  ext ) ; $BB BIND
+:NONAME ( ADDA  ind ) ; $AB BIND
+
 :NONAME ( ADDB  imm ) ; $CB BIND
 :NONAME ( ADDB  dir ) ; $DB BIND
-:NONAME ( ADDB  ind ) ; $EB BIND
 :NONAME ( ADDB  ext ) ; $FB BIND
+:NONAME ( ADDB  ind ) ; $EB BIND
+
 :NONAME ( ADDD  imm ) ; $C3 BIND
 :NONAME ( ADDD  dir ) ; $D3 BIND
-:NONAME ( ADDD  ind ) ; $E3 BIND
 :NONAME ( ADDD  ext ) ; $F3 BIND
+:NONAME ( ADDD  ind ) ; $E3 BIND
+
 :NONAME ( ANDA  imm ) ; $84 BIND
 :NONAME ( ANDA  dir ) ; $94 BIND
-:NONAME ( ANDA  ind ) ; $A4 BIND
 :NONAME ( ANDA  ext ) ; $B4 BIND
+:NONAME ( ANDA  ind ) ; $A4 BIND
+
 :NONAME ( ANDB  imm ) ; $C4 BIND
 :NONAME ( ANDB  dir ) ; $D4 BIND
-:NONAME ( ANDB  ind ) ; $E4 BIND
 :NONAME ( ANDB  ext ) ; $F4 BIND
-:NONAME ( ANDCC imm ) ; $1C BIND
+:NONAME ( ANDB  ind ) ; $E4 BIND
+
 :NONAME ( ASL   dir ) ; $08 BIND
 :NONAME ( ASL   ind ) ; $68 BIND
 :NONAME ( ASL   ext ) ; $78 BIND
+
 :NONAME ( ASLA  inh ) ; $48 BIND
 :NONAME ( ASLB  inh ) ; $58 BIND
+
 :NONAME ( ASR   dir ) ; $07 BIND
-:NONAME ( ASR   ind ) ; $67 BIND
 :NONAME ( ASR   ext ) ; $77 BIND
+:NONAME ( ASR   ind ) ; $67 BIND
+
 :NONAME ( ASRA  inh ) ; $47 BIND
 :NONAME ( ASRB  inh ) ; $57 BIND
+
 :NONAME ( BCC   rel ) ; $24 BIND
 :NONAME ( BCS   rel ) ; $25 BIND
 :NONAME ( BEQ   rel ) ; $27 BIND
@@ -260,14 +284,17 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BGT   rel ) ; $2E BIND
 :NONAME ( BHI   rel ) ; $22 BIND
 :NONAME ( BHS   rel ) ; $24 BIND
+
 :NONAME ( BITA  imm ) ; $85 BIND
 :NONAME ( BITA  dir ) ; $95 BIND
-:NONAME ( BITA  ind ) ; $A5 BIND
 :NONAME ( BITA  ext ) ; $B5 BIND
+:NONAME ( BITA  ind ) ; $A5 BIND
+
 :NONAME ( BITB  imm ) ; $C5 BIND
 :NONAME ( BITB  dir ) ; $D5 BIND
-:NONAME ( BITB  ind ) ; $E5 BIND
 :NONAME ( BITB  ext ) ; $F5 BIND
+:NONAME ( BITB  ind ) ; $E5 BIND
+
 :NONAME ( BLE   rel ) ; $2F BIND
 :NONAME ( BLO   rel ) ; $25 BIND
 :NONAME ( BLS   rel ) ; $23 BIND
@@ -280,71 +307,87 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BSR   rel ) ; $8D BIND
 :NONAME ( BVC   rel ) ; $28 BIND
 :NONAME ( BVS   rel ) ; $29 BIND
-:NONAME ( CLR   dir ) ; $0F BIND
-:NONAME ( CLR   ind ) ; $6F BIND
-:NONAME ( CLR   ext ) ; $7F BIND
-:NONAME ( CLRA  inh ) ; $4F BIND
-:NONAME ( CLRB  inh ) ; $5F BIND
+
 :NONAME ( CMPA  imm ) ; $81 BIND
 :NONAME ( CMPA  dir ) ; $91 BIND
-:NONAME ( CMPA  ind ) ; $A1 BIND
 :NONAME ( CMPA  ext ) ; $B1 BIND
+:NONAME ( CMPA  ind ) ; $A1 BIND
+
 :NONAME ( CMPB  imm ) ; $C1 BIND
 :NONAME ( CMPB  dir ) ; $D1 BIND
-:NONAME ( CMPB  ind ) ; $E1 BIND
 :NONAME ( CMPB  ext ) ; $F1 BIND
+:NONAME ( CMPB  ind ) ; $E1 BIND
+
 :NONAME ( CMPD  imm ) ; $1083 BIND2
 :NONAME ( CMPD  dir ) ; $1093 BIND2
-:NONAME ( CMPD  ind ) ; $10A3 BIND2
 :NONAME ( CMPD  ext ) ; $10B3 BIND2
+:NONAME ( CMPD  ind ) ; $10A3 BIND2
+
 :NONAME ( CMPS  imm ) ; $118C BIND2
 :NONAME ( CMPS  dir ) ; $119C BIND2
-:NONAME ( CMPS  ind ) ; $11AC BIND2
 :NONAME ( CMPS  ext ) ; $11BC BIND2
+:NONAME ( CMPS  ind ) ; $11AC BIND2
+
 :NONAME ( CMPU  imm ) ; $1183 BIND2
 :NONAME ( CMPU  dir ) ; $1193 BIND2
-:NONAME ( CMPU  ind ) ; $11A3 BIND2
 :NONAME ( CMPU  ext ) ; $11B3 BIND2
+:NONAME ( CMPU  ind ) ; $11A3 BIND2
+
 :NONAME ( CMPX  imm ) ; $8C BIND
 :NONAME ( CMPX  dir ) ; $9C BIND
-:NONAME ( CMPX  ind ) ; $AC BIND
 :NONAME ( CMPX  ext ) ; $BC BIND
+:NONAME ( CMPX  ind ) ; $AC BIND
+
 :NONAME ( CMPY  imm ) ; $108C BIND2
 :NONAME ( CMPY  dir ) ; $109C BIND2
-:NONAME ( CMPY  ind ) ; $10AC BIND2
 :NONAME ( CMPY  ext ) ; $10BC BIND2
+:NONAME ( CMPY  ind ) ; $10AC BIND2
+
 :NONAME ( COM   dir ) ; $03 BIND
-:NONAME ( COM   ind ) ; $63 BIND
 :NONAME ( COM   ext ) ; $73 BIND
+:NONAME ( COM   ind ) ; $63 BIND
+
 :NONAME ( COMA  inh ) ; $43 BIND
 :NONAME ( COMB  inh ) ; $53 BIND
+
 :NONAME ( CWAI  imm ) ; $3C BIND
+
 :NONAME ( DAA   inh ) ; $19 BIND
+
 :NONAME ( DEC   dir ) ; $0A BIND
-:NONAME ( DEC   ind ) ; $6A BIND
 :NONAME ( DEC   ext ) ; $7A BIND
+:NONAME ( DEC   ind ) ; $6A BIND
+
 :NONAME ( DECA  inh ) ; $4A BIND
 :NONAME ( DECB  inh ) ; $5A BIND
+
 :NONAME ( EORA  imm ) ; $88 BIND
 :NONAME ( EORA  dir ) ; $98 BIND
-:NONAME ( EORA  ind ) ; $A8 BIND
 :NONAME ( EORA  ext ) ; $B8 BIND
+:NONAME ( EORA  ind ) ; $A8 BIND
+
 :NONAME ( EORB  imm ) ; $C8 BIND
 :NONAME ( EORB  dir ) ; $D8 BIND
-:NONAME ( EORB  ind ) ; $E8 BIND
 :NONAME ( EORB  ext ) ; $F8 BIND
+:NONAME ( EORB  ind ) ; $E8 BIND
+
 :NONAME ( EXG   imm ) ; $1E BIND
+
 :NONAME ( INC   dir ) ; $0C BIND
-:NONAME ( INC   ind ) ; $6C BIND
 :NONAME ( INC   ext ) ; $7C BIND
+:NONAME ( INC   ind ) ; $6C BIND
+
 :NONAME ( INCA  inh ) ; $4C BIND
 :NONAME ( INCB  inh ) ; $5C BIND
+
 :NONAME ( JMP   dir ) ; $0E BIND
-:NONAME ( JMP   ind ) ; $6E BIND
 :NONAME ( JMP   ext ) ; $7E BIND
+:NONAME ( JMP   ind ) ; $6E BIND
+
 :NONAME ( JSR   dir ) ; $9D BIND
-:NONAME ( JSR   ind ) ; $AD BIND
 :NONAME ( JSR   ext ) ; $BD BIND
+:NONAME ( JSR   ind ) ; $AD BIND
+
 :NONAME ( LBCC  rel ) ; $1024 BIND2
 :NONAME ( LBCS  rel ) ; $1025 BIND2
 :NONAME ( LBEQ  rel ) ; $1027 BIND2
@@ -375,64 +418,84 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LDB   imm ) BYTE@      LDB ; $C6 BIND
 :NONAME ( LDB   dir ) 'DP    TC@ LDB ; $D6 BIND
 :NONAME ( LDB   ext ) 'EA    TC@ LDB ; $F6 BIND
-:NONAME ( LDB   ind ) ; $E6 BIND
+:NONAME ( LDB   ind ) 'IND   TC@ LDB ; $E6 BIND
 
-: LDD ( b -- ) >NZ 'V CLEAR _D W! ;
+: LDD ( w -- ) >NZ 'V CLEAR _D W! ;
 :NONAME ( LDD   imm ) WORD@      LDD ; $CC BIND
 :NONAME ( LDD   dir ) 'DP    TW@ LDD ; $DC BIND
 :NONAME ( LDD   ext ) 'EA    TW@ LDD ; $FC BIND
-:NONAME ( LDD   ind ) ; $EC BIND
+:NONAME ( LDD   ind ) 'IND   TW@ LDD ; $EC BIND
 
-:NONAME ( LDS   imm ) ; $10CE BIND2
-:NONAME ( LDS   dir ) ; $10DE BIND2
-:NONAME ( LDS   ext ) ; $10FE BIND2
-:NONAME ( LDS   ind ) ; $10EE BIND2
+: LDS ( w -- ) >NZ 'V CLEAR _S W! ;
+:NONAME ( LDS   imm ) WORD@      LDS ; $10CE BIND2
+:NONAME ( LDS   dir ) 'DP    TW@ LDS ; $10DE BIND2
+:NONAME ( LDS   ext ) 'EA    TW@ LDS ; $10FE BIND2
+:NONAME ( LDS   ind ) 'IND   TW@ LDS ; $10EE BIND2
 
-:NONAME ( LDU   imm ) ; $CE BIND
-:NONAME ( LDU   dir ) ; $DE BIND
-:NONAME ( LDU   ext ) ; $FE BIND
-:NONAME ( LDU   ind ) ; $EE BIND
+: LDU ( w -- ) >NZ 'V CLEAR _U W! ;
+:NONAME ( LDU   imm ) WORD@      LDU ; $CE BIND
+:NONAME ( LDU   dir ) 'DP    TW@ LDU ; $DE BIND
+:NONAME ( LDU   ext ) 'EA    TW@ LDU ; $FE BIND
+:NONAME ( LDU   ind ) 'IND   TW@ LDU ; $EE BIND
 
-: LDX ( b -- ) >NZ 'V CLEAR _X W! ;
+: LDX ( w -- ) >NZ 'V CLEAR _X W! ;
 :NONAME ( LDX   imm ) WORD@      LDX ; $8E BIND
 :NONAME ( LDX   dir ) 'DP    TW@ LDX ; $9E BIND
 :NONAME ( LDX   ext ) 'EA    TW@ LDX ; $BE BIND
 :NONAME ( LDX   ind ) ; $AE BIND
 
-:NONAME ( LDY   imm ) ; $108E BIND2
-:NONAME ( LDY   dir ) ; $109E BIND2
-:NONAME ( LDY   ext ) ; $10BE BIND2
-:NONAME ( LDY   ind ) ; $10AE BIND2
+: LDY ( w -- ) >NZ 'V CLEAR _Y W! ;
+:NONAME ( LDY   imm ) WORD@      LDY ; $108E BIND2
+:NONAME ( LDY   dir ) 'DP    TW@ LDY ; $109E BIND2
+:NONAME ( LDY   ext ) 'EA    TW@ LDY ; $10BE BIND2
+:NONAME ( LDY   ind ) 'IND   TW@ LDY ; $10AE BIND2
+
+:NONAME ( CLRA  inh ) 0 LDA 'C CLEAR ; $4F BIND
+:NONAME ( CLRB  inh ) 0 LDB 'C CLEAR ; $5F BIND
+
+:NONAME ( CLR   dir ) ; $0F BIND
+:NONAME ( CLR   ext ) ; $7F BIND
+:NONAME ( CLR   ind ) ; $6F BIND
 
 :NONAME ( LEAS  ind ) ; $32 BIND
 :NONAME ( LEAU  ind ) ; $33 BIND
 :NONAME ( LEAX  ind ) ; $30 BIND
 :NONAME ( LEAY  ind ) ; $31 BIND
+
 :NONAME ( LSL   dir ) ; $08 BIND
 :NONAME ( LSL   ind ) ; $68 BIND
 :NONAME ( LSL   ext ) ; $78 BIND
+
 :NONAME ( LSLA  inh ) ; $48 BIND
 :NONAME ( LSLB  inh ) ; $58 BIND
+
 :NONAME ( LSR   dir ) ; $04 BIND
-:NONAME ( LSR   ind ) ; $64 BIND
 :NONAME ( LSR   ext ) ; $74 BIND
+:NONAME ( LSR   ind ) ; $64 BIND
+
 :NONAME ( LSRA  inh ) ; $44 BIND
 :NONAME ( LSRB  inh ) ; $54 BIND
+
 :NONAME ( MUL   inh ) ; $3D BIND
+
 :NONAME ( NEG   ind ) ; $60 BIND
 :NONAME ( NEG   ext ) ; $70 BIND
+
 :NONAME ( NEGA  inh ) ; $40 BIND
 :NONAME ( NEGB  inh ) ; $50 BIND
+
 :NONAME ( NOP   inh ) ; $12 BIND
+
 :NONAME ( ORA   imm ) ; $8A BIND
 :NONAME ( ORA   dir ) ; $9A BIND
-:NONAME ( ORA   ind ) ; $AA BIND
 :NONAME ( ORA   ext ) ; $BA BIND
+:NONAME ( ORA   ind ) ; $AA BIND
+
 :NONAME ( ORB   imm ) ; $CA BIND
 :NONAME ( ORB   dir ) ; $DA BIND
-:NONAME ( ORB   ind ) ; $EA BIND
 :NONAME ( ORB   ext ) ; $FA BIND
-:NONAME ( ORCC  imm ) ; $1A BIND
+:NONAME ( ORB   ind ) ; $EA BIND
+
 :NONAME ( PSHS  imm ) ; $34 BIND
 :NONAME ( PSHU  imm ) ; $36 BIND
 :NONAME ( PULS  imm ) ; $35 BIND
@@ -459,57 +522,67 @@ $01 VALUE 'C    \ Carry
 :NONAME ( SBCB  ext ) ; $F2 BIND
 :NONAME ( SEX   inh ) ; $1D BIND
 
-:NONAME ( STA   dir ) ; $97 BIND
-:NONAME ( STA   ind ) ; $A7 BIND
-:NONAME ( STA   ext ) ; $B7 BIND
+: STA ( addr -- ) _A C@ SWAP TC! ;
+:NONAME ( STA   dir ) 'DP        STA ; $97 BIND
+:NONAME ( STA   ext ) 'EA        STA ; $B7 BIND
+:NONAME ( STA   ind ) 'IND       STA ; $A7 BIND
 
-:NONAME ( STB   dir ) ; $D7 BIND
-:NONAME ( STB   ind ) ; $E7 BIND
-:NONAME ( STB   ext ) ; $F7 BIND
+: STB ( addr -- ) _B C@ SWAP TC! ;
+:NONAME ( STB   dir ) 'DP        STB ; $D7 BIND
+:NONAME ( STB   ext ) 'EA        STB ; $F7 BIND
+:NONAME ( STB   ind ) 'IND       STB ; $E7 BIND
 
-:NONAME ( STD   dir ) ; $DD BIND
-:NONAME ( STD   ind ) ; $ED BIND
-:NONAME ( STD   ext ) ; $FD BIND
+: STD ( addr -- ) _D W@ SWAP TW! ;
+:NONAME ( STD   dir ) 'DP        STD ; $DD BIND
+:NONAME ( STD   ext ) 'EA        STD ; $FD BIND
+:NONAME ( STD   ind ) 'IND       STD ; $ED BIND
 
-:NONAME ( STS   dir ) ; $10DF BIND2
-:NONAME ( STS   ind ) ; $10EF BIND2
-:NONAME ( STS   ext ) ; $10FF BIND2
+: STS ( addr -- ) _S W@ SWAP TW! ;
+:NONAME ( STS   dir ) 'DP        STS ; $10DF BIND2
+:NONAME ( STS   ext ) 'EA        STS ; $10FF BIND2
+:NONAME ( STS   ind ) 'IND       STS ; $10EF BIND2
 
-:NONAME ( STU   dir ) ; $DF BIND
-:NONAME ( STU   ind ) ; $EF BIND
-:NONAME ( STU   ext ) ; $FF BIND
+: STU ( addr -- ) _U W@ SWAP TW! ;
+:NONAME ( STU   dir ) 'DP        STU ; $DF BIND
+:NONAME ( STU   ext ) 'EA        STU ; $FF BIND
+:NONAME ( STU   ind ) 'IND       STU ; $EF BIND
 
-:NONAME ( STX   dir ) ; $9F BIND
-:NONAME ( STX   ind ) ; $AF BIND
-:NONAME ( STX   ext ) ; $BF BIND
+: STX ( addr -- ) _X W@ SWAP TW! ;
+:NONAME ( STX   dir ) 'DP        STX ; $9F BIND
+:NONAME ( STX   ext ) 'EA        STX ; $BF BIND
+:NONAME ( STX   ind ) 'IND       STX ; $AF BIND
 
-:NONAME ( STY   dir ) ; $109F BIND2
-:NONAME ( STY   ind ) ; $10AF BIND2
-:NONAME ( STY   ext ) ; $10BF BIND2
+: STY ( addr -- ) _Y W@ SWAP TW! ;
+:NONAME ( STY   dir ) 'DP        STY ; $109F BIND2
+:NONAME ( STY   ext ) 'EA        STY ; $10BF BIND2
+:NONAME ( STY   ind ) 'IND       STY ; $10AF BIND2
 
 :NONAME ( SUBA  imm ) ; $80 BIND
 :NONAME ( SUBA  dir ) ; $90 BIND
-:NONAME ( SUBA  ind ) ; $A0 BIND
 :NONAME ( SUBA  ext ) ; $B0 BIND
+:NONAME ( SUBA  ind ) ; $A0 BIND
 
 :NONAME ( SUBB  imm ) ; $C0 BIND
 :NONAME ( SUBB  dir ) ; $D0 BIND
-:NONAME ( SUBB  ind ) ; $E0 BIND
 :NONAME ( SUBB  ext ) ; $F0 BIND
-
+:NONAME ( SUBB  ind ) ; $E0 BIND
 
 :NONAME ( SUBD  imm ) ; $83 BIND
 :NONAME ( SUBD  dir ) ; $93 BIND
-:NONAME ( SUBD  ind ) ; $A3 BIND
 :NONAME ( SUBD  ext ) ; $B3 BIND
+:NONAME ( SUBD  ind ) ; $A3 BIND
+
 :NONAME ( SWI   inh ) ; $3F BIND
 :NONAME ( SWI2  inh ) ; $103F BIND2
 :NONAME ( SWI3  inh ) ; $113F BIND2
 :NONAME ( SYNC  inh ) ; $13 BIND
+
 :NONAME ( TFR   imm ) ; $1F BIND
+
 :NONAME ( TST   dir ) ; $0D BIND
-:NONAME ( TST   ind ) ; $6D BIND
 :NONAME ( TST   ext ) ; $7D BIND
+:NONAME ( TST   ind ) ; $6D BIND
+
 :NONAME ( TSTA  inh ) ; $4D BIND
 :NONAME ( TSTB  inh ) ; $5D BIND
 
