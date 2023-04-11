@@ -223,7 +223,7 @@ $01 VALUE 'C    \ Carry
 ;
 \ Opcodes definitions
 
-:NONAME ( ABX   inh ) _X W@ _B C@ _X W! ; $3A BIND
+:NONAME ( ABX   inh ) _X W@ _B C@ + _X W! ; $3A BIND
 
 :NONAME ( ANDCC imm ) _CC C@ BYTE@ AND _CC C! ; $1C BIND
 :NONAME ( ORCC  imm ) _CC C@ BYTE@ OR  _CC C! ; $1A BIND
@@ -591,7 +591,4 @@ $01 VALUE 'C    \ Carry
 : ORG   DUP TO THERE _PC! ;
 : _     TC, ;
 
-\ Test LDA IMM
-$4000 ORG 0 _D W!
-86 _ AA _   \ LDA #$AA
-C6 _ BB _   \ LDB #$BB
+$4000 ORG
