@@ -2,6 +2,8 @@
 
 ## Introduction
 
+Status: WIP, largely unfinished and yet untested
+
 ## Challenges
 
 Some things that make this emulator more challenging than Emu6502:
