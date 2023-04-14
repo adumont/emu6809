@@ -446,8 +446,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( EORB  ext ) ; $F8 BIND
 :NONAME ( EORB  ind ) ; $E8 BIND
 
-:NONAME ( EXG   imm ) ; $1E BIND
-
 :NONAME ( INC   dir ) ; $0C BIND
 :NONAME ( INC   ext ) ; $7C BIND
 :NONAME ( INC   ind ) ; $6C BIND
@@ -616,18 +614,32 @@ $01 VALUE 'C    \ Carry
   CELLS REGS + @ TO DST_ADDR
   $08 AND 2/     TO DST_WIDTH ;
 
+: 'REG DUP DREG SREG ;
+
+: OR<<8 DUP 8 LSHIFT OR ;
+
 :NONAME ( TFR   imm )
-  BYTE@ DUP DREG SREG
+  BYTE@ 'REG
   SRC_WIDTH DST_WIDTH OR
   CASE
     \ Valid modes (according to datasheet)
-    ( 8 ->  8  ) %1100 OF SRC_ADDR C@                 DST_ADDR C! ENDOF
-    ( 16 -> 16 ) %0000 OF SRC_ADDR W@                 DST_ADDR W! ENDOF
+    ( 8 ->  8  ) %1100 OF SRC_ADDR C@       DST_ADDR C! ENDOF
+    ( 16 -> 16 ) %0000 OF SRC_ADDR W@       DST_ADDR W! ENDOF
     \ Invalid modes (according to datasheet)
-    ( 8 -> 16  ) %1000 OF SRC_ADDR C@ DUP 8 LSHIFT OR DST_ADDR W! ENDOF
-    ( 16 ->  8 ) %0100 OF SRC_ADDR W@                 DST_ADDR C! ENDOF
+    ( 8 -> 16  ) %1000 OF SRC_ADDR C@ OR<<8 DST_ADDR W! ENDOF
+    ( 16 ->  8 ) %0100 OF SRC_ADDR W@       DST_ADDR C! ENDOF
   ENDCASE
 ; $1F BIND
+
+:NONAME ( EXG   imm )
+  BYTE@ 'REG
+  \ Place both register values on the stack
+  SRC_ADDR SRC_WIDTH IF C@ OR<<8 ELSE W@ THEN
+  DST_ADDR DST_WIDTH IF C@ OR<<8 ELSE W@ THEN
+  \ Save both values to the other register
+  SRC_ADDR SRC_WIDTH IF C! ELSE W! THEN
+  DST_ADDR DST_WIDTH IF C! ELSE W! THEN
+; $1E BIND
 
 :NONAME ( TST   dir ) ; $0D BIND
 :NONAME ( TST   ext ) ; $7D BIND
