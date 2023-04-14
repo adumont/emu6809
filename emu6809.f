@@ -620,15 +620,8 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( TFR   imm )
   BYTE@ 'REG
-  SRC_WIDTH DST_WIDTH OR
-  CASE
-    \ Valid modes (according to datasheet)
-    ( 8 ->  8  ) %1100 OF SRC_ADDR C@       DST_ADDR C! ENDOF
-    ( 16 -> 16 ) %0000 OF SRC_ADDR W@       DST_ADDR W! ENDOF
-    \ Invalid modes (according to datasheet)
-    ( 8 -> 16  ) %1000 OF SRC_ADDR C@ OR<<8 DST_ADDR W! ENDOF
-    ( 16 ->  8 ) %0100 OF SRC_ADDR W@       DST_ADDR C! ENDOF
-  ENDCASE
+  SRC_ADDR SRC_WIDTH IF C@ OR<<8 ELSE W@ THEN
+  DST_ADDR DST_WIDTH IF C! ELSE W! THEN
 ; $1F BIND
 
 :NONAME ( EXG   imm )
