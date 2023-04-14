@@ -55,7 +55,8 @@ _A , _B , _CC , _DP , _F , _F  , _F , _F , \  8-bit registers
 
 : LDCC  ( byte -- ) _CC C! ;
 
-CREATE OPCODES $100 CELLS ALLOT
+CREATE OPCODES  $100 CELLS ALLOT
+CREATE OPCODES2 $200 CELLS ALLOT \ array for $10xx-$11-- extended opcodes
 CREATE RAM $10000 ALLOT \ Full 6502 memory space
 \ 0000-00FF ZP
 \ 0100-01FF 6502 Stack
@@ -125,10 +126,27 @@ DEFER WRIT_HOOK
 
 0 VALUE LASTPC
 
+: FETCH ( -- opcode )
+  BYTE@
+  DUP  10 =
+  OVER 11 =
+  OR IF 8 LSHIFT BYTE@ OR THEN
+;
+
+: DECODE
+  DUP $FF00 AND IF
+    $FFF AND
+    CELLS OPCODES2
+  ELSE
+    CELLS OPCODES
+  THEN
+  + @
+;
+
 : NEXT
   ( Save PC ) _PC W@ TO LASTPC
-  ( FETCH   ) BYTE@ DUP TO LASTINSTR
-  ( DECODE  ) CELLS OPCODES + @
+  ( FETCH   ) FETCH DUP TO LASTINSTR
+  ( DECODE  ) DECODE
   ( EXECUTE ) EXEC
   TRACE IF STATUS THEN ;
 
@@ -162,8 +180,8 @@ DEFER BREAKPOINT
   R> TO TRACE      \ restore TRACE
   STATUS ;
 
-: BIND ( xt opcode -- )   CELLS OPCODES + ! ; \ saves XT in OPCODES table
-: BIND2 ( xt opcode -- )  2DROP ( TBD )  ; \ special case of 2 bytes opcodes $10xx & $11xx
+: BIND  ( xt opcode -- )          CELLS OPCODES  + ! ; \ saves XT in OPCODES table
+: BIND2 ( xt opcode -- ) $FFF AND CELLS OPCODES2 + ! ; \ special case of 2 bytes opcodes $10xx & $11xx
 
 \ -- Processor Flags handling
 $80 VALUE 'E    \ Entire Flag

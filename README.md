@@ -9,7 +9,7 @@ Status: WIP, largely unfinished and yet untested
 Some things that make this emulator more challenging than Emu6502:
 
 - Indirect addressing & the postbyte register bit assignments, Fig 16 page 17 of the datasheet
-- Some opcodes are 2 bytes long (10xx and 11xx), which break the simple opcode table and opcode decoding mechanism implemented in Emu6502.
+- Some opcodes are 2 bytes long (10xx and 11xx), which break the simple opcode table and opcode decoding mechanism implemented in Emu6502. Impacts: OPCODES2 & BIND2 + new logic for FETCH and DECODE
 - Some instructions manipulate 16 bit values while other manipulate 8 bit values. Impacts low level words like >N which now needs a 16-bit version (>NW)
 - Some instructions manipulate both 8 and 16 bit registers. Impacts is additional logic is needed in higher level words (like in TFR, EXG...)
 
