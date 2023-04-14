@@ -40,9 +40,18 @@ CREATE _PC 0 W,
 CREATE _DP 0 C, \ Direct Page Register
 CREATE _CC $50 C, \ Condition Code Register
 
+\ fake registers used for invalid nibbles in TFR, EXG
+CREATE _F $FFFF W,
+CREATE _Z 0     C,
+
 \ Array _RR stores adresses of X, Y, U and S registers
 \ It'll be used in Index Addressing Modes
 CREATE _RR _X , _Y , _U , _S ,
+
+\ Array to store Address registers to decode Transfer Register to Register mode
+CREATE REGS ( "undefined" also filled with valid registers...)
+_D , _X , _Y  , _U  , _S , _PC , _F , _F , \ 16-bit registers
+_A , _B , _CC , _DP , _F , _F  , _F , _F , \  8-bit registers
 
 : LDCC  ( byte -- ) _CC C! ;
 
@@ -594,7 +603,31 @@ $01 VALUE 'C    \ Carry
 :NONAME ( SWI3  inh ) ; $113F BIND2
 :NONAME ( SYNC  inh ) ; $13 BIND
 
-:NONAME ( TFR   imm ) ; $1F BIND
+0 VALUE SRC_ADDR    0 VALUE SRC_WIDTH \ %1000 (8 bit) or 0 (16 bit)
+0 VALUE DST_ADDR    0 VALUE DST_WIDTH \ %0100 (8 bit) or 0 (16 bit)
+
+: SREG ( -- src-addr f )
+  $F0 AND 4 RSHIFT DUP
+  CELLS REGS + @ TO SRC_ADDR 
+  $08 AND        TO SRC_WIDTH ;
+
+: DREG ( -- src-addr f )
+  $0F AND DUP
+  CELLS REGS + @ TO DST_ADDR
+  $08 AND 2/     TO DST_WIDTH ;
+
+:NONAME ( TFR   imm )
+  BYTE@ DUP DREG SREG
+  SRC_WIDTH DST_WIDTH OR
+  CASE
+    \ Valid modes (according to datasheet)
+    ( 8 ->  8  ) %1100 OF SRC_ADDR C@                 DST_ADDR C! ENDOF
+    ( 16 -> 16 ) %0000 OF SRC_ADDR W@                 DST_ADDR W! ENDOF
+    \ Invalid modes (according to datasheet)
+    ( 8 -> 16  ) %1000 OF SRC_ADDR C@ DUP 8 LSHIFT OR DST_ADDR W! ENDOF
+    ( 16 ->  8 ) %0100 OF SRC_ADDR W@                 DST_ADDR C! ENDOF
+  ENDCASE
+; $1F BIND
 
 :NONAME ( TST   dir ) ; $0D BIND
 :NONAME ( TST   ext ) ; $7D BIND
