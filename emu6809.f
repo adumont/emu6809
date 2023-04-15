@@ -501,10 +501,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( JMP   ext ) ; $7E BIND
 :NONAME ( JMP   ind ) ; $6E BIND
 
-:NONAME ( JSR   dir ) ; $9D BIND
-:NONAME ( JSR   ext ) ; $BD BIND
-:NONAME ( JSR   ind ) ; $AD BIND
-
 : ?LBR ( f -- ) WORD@ SWAP IF _PC W@ + _PC! ELSE DROP THEN ; \ long branch if flag is set
 :NONAME ( LBCC  rel ) _CC C@ 'C AND 0= ?LBR ; $1024 BIND2
 :NONAME ( LBCS  rel ) _CC C@ 'C AND    ?LBR ; $1025 BIND2
@@ -607,6 +603,11 @@ $01 VALUE 'C    \ Carry
 :NONAME ( PULS  imm ) _S PULLREGS ; $35 BIND
 :NONAME ( PULU  imm ) _U PULLREGS ; $37 BIND
 
+: JSR ( addr ) _PC C@ ( PCL ) _S PUSH _PC 1 + C@ ( PCH ) _S PUSH _PC! ;
+:NONAME ( JSR   dir ) 'DP    JSR ; $9D BIND
+:NONAME ( JSR   ext ) 'EA    JSR ; $BD BIND
+:NONAME ( JSR   ind ) 'IND   JSR ; $AD BIND
+
 :NONAME ( ROL   dir ) ; $09 BIND
 :NONAME ( ROL   ind ) ; $69 BIND
 :NONAME ( ROL   ext ) ; $79 BIND
@@ -620,7 +621,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( RORB  inh ) ; $56 BIND
 
 :NONAME ( RTI   inh ) ; $3B BIND
-:NONAME ( RTS   inh ) ; $39 BIND
+:NONAME ( RTS   inh ) _S PULL ( PCH) _PC 1+ C! _S PULL ( PCL) _PC C! ; $39 BIND
 
 :NONAME ( SBCA  imm ) ; $82 BIND
 :NONAME ( SBCA  dir ) ; $92 BIND
@@ -752,5 +753,4 @@ $01 VALUE 'C    \ Carry
 
 $4000 s" tests/ADDD.bin" load-rom
 
-$4000 ORG STATUS
-
+$4000 ORG
