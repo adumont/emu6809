@@ -512,11 +512,10 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LBMI  rel ) _CC C@ 'N AND    ?LBR ; $102B BIND2
 :NONAME ( LBNE  rel ) _CC C@ 'Z AND 0= ?LBR ; $1026 BIND2
 :NONAME ( LBPL  rel ) _CC C@ 'N AND 0= ?LBR ; $102A BIND2
-:NONAME ( LBRA  rel ) ; $16 BIND
-:NONAME ( LBRN  rel ) ; $1021 BIND2
-:NONAME ( LBSR  rel ) ; $17 BIND
-:NONAME ( LBVC  rel ) ; $1028 BIND2
-:NONAME ( LBVS  rel ) ; $1029 BIND2
+:NONAME ( LBRA  rel ) 1                ?LBR ; $16 BIND
+:NONAME ( LBRN  rel ) 0                ?LBR ; $1021 BIND2
+:NONAME ( LBVC  rel ) _CC C@ 'V AND 0= ?LBR ; $1028 BIND2
+:NONAME ( LBVS  rel ) _CC C@ 'V        ?LBR ; $1029 BIND2
 
 :NONAME ( LEAS  ind ) 'IND    _S W! ; $32 BIND
 :NONAME ( LEAU  ind ) 'IND    _U W! ; $33 BIND
