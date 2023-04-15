@@ -553,30 +553,82 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ORB   ext ) ; $FA BIND
 :NONAME ( ORB   ind ) ; $EA BIND
 
-:NONAME ( PSHS  imm ) ; $34 BIND
-:NONAME ( PSHU  imm ) ; $36 BIND
-:NONAME ( PULS  imm ) ; $35 BIND
-:NONAME ( PULU  imm ) ; $37 BIND
+: PUSH ( addr -- value ) DUP W@ 1- DUP ROT W! TC! ; \ pre-decrement register R (S/U), leave value on ToS, save to
+
+\ Push multiple regs (as indicated by postbyte) to the stack provided on ToS
+: PUSHREGS ( reg ) >R BYTE@
+  ( PC ) DUP %10000000 AND IF _PC C@ ( PCL ) R@ PUSH _PC 1 + C@ ( PCH ) R@ PUSH THEN
+  ( U/S) DUP %01000000 AND IF
+    R@ _S =
+    IF \ pushing to S stack?
+      _U  C@ ( UL  ) R@ PUSH _U  1 + C@ ( UH  ) R@ PUSH
+    ELSE \ pushing to U (user) stack
+      _S  C@ ( SL  ) R@ PUSH _S  1 + C@ ( SH  ) R@ PUSH
+    THEN
+  THEN
+  ( Y  ) DUP %00100000 AND IF _Y  C@ ( YL  ) R@ PUSH _Y  1 + C@ ( YH  ) R@ PUSH THEN
+  ( X  ) DUP %00010000 AND IF _X  C@ ( XL  ) R@ PUSH _X  1 + C@ ( XH  ) R@ PUSH THEN
+  ( DP ) DUP %00001000 AND IF _DP C@ ( DP  ) R@ PUSH THEN
+  ( B  ) DUP %00000100 AND IF _B  C@ ( B   ) R@ PUSH THEN
+  ( A  ) DUP %00000010 AND IF _A  C@ ( A   ) R@ PUSH THEN
+  ( CC ) DUP %00000001 AND IF _CC C@ ( CC  ) R@ PUSH THEN
+  R> 2DROP
+;
+
+:NONAME ( PSHS  imm ) _S PUSHREGS ; $34 BIND
+:NONAME ( PSHU  imm ) _U PUSHREGS ; $36 BIND
+
+: PULL ( addr -- value ) DUP W@ DUP 1+ ROT W! TC@ ; \ leave reg R value on ToS, post-increment R, fetch from
+
+\ Pull multiple regs (as indicated by postbyte) to the stack provided on ToS
+: PULLREGS ( reg ) >R BYTE@
+  ( CC ) DUP %00000001 AND IF R@ PULL _CC C! THEN
+  ( A  ) DUP %00000010 AND IF R@ PULL _A  C! THEN
+  ( B  ) DUP %00000100 AND IF R@ PULL _B  C! THEN
+  ( DP ) DUP %00001000 AND IF R@ PULL _DP C! THEN
+  ( X  ) DUP %00010000 AND IF R@ PULL ( XH ) _X  1+ C! R@ PULL ( XL ) _X  C! THEN
+  ( Y  ) DUP %00100000 AND IF R@ PULL ( YH ) _Y  1+ C! R@ PULL ( YL ) _Y  C! THEN
+  ( U/S) DUP %01000000 AND IF
+    R@ _S =
+    IF \ pushing to S stack?
+      R@ PULL ( UH ) _U  1+ C! R@ PULL ( UL ) _U  C!
+    ELSE \ pushing to U (user) stack
+      R@ PULL ( SH ) _S  1+ C! R@ PULL ( SL ) _S  C!
+    THEN
+  THEN
+  ( PC ) DUP %10000000 AND IF R@ PULL ( PCH) _PC 1+ C! R@ PULL ( PCL) _PC C! THEN
+
+  R> 2DROP
+;
+
+:NONAME ( PULS  imm ) _S PULLREGS ; $35 BIND
+:NONAME ( PULU  imm ) _U PULLREGS ; $37 BIND
+
 :NONAME ( ROL   dir ) ; $09 BIND
 :NONAME ( ROL   ind ) ; $69 BIND
 :NONAME ( ROL   ext ) ; $79 BIND
 :NONAME ( ROLA  inh ) ; $49 BIND
 :NONAME ( ROLB  inh ) ; $59 BIND
+
 :NONAME ( ROR   dir ) ; $06 BIND
 :NONAME ( ROR   ind ) ; $66 BIND
 :NONAME ( ROR   ext ) ; $76 BIND
 :NONAME ( RORA  inh ) ; $46 BIND
 :NONAME ( RORB  inh ) ; $56 BIND
+
 :NONAME ( RTI   inh ) ; $3B BIND
 :NONAME ( RTS   inh ) ; $39 BIND
+
 :NONAME ( SBCA  imm ) ; $82 BIND
 :NONAME ( SBCA  dir ) ; $92 BIND
 :NONAME ( SBCA  ind ) ; $A2 BIND
 :NONAME ( SBCA  ext ) ; $B2 BIND
+
 :NONAME ( SBCB  imm ) ; $C2 BIND
 :NONAME ( SBCB  dir ) ; $D2 BIND
 :NONAME ( SBCB  ind ) ; $E2 BIND
 :NONAME ( SBCB  ext ) ; $F2 BIND
+
 :NONAME ( SEX   inh ) ; $1D BIND
 
 : STA ( addr -- ) _A C@ SWAP TC! ;
