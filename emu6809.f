@@ -730,5 +730,24 @@ $01 VALUE 'C    \ Carry
 
 : ORG   DUP TO THERE _PC! ;
 : _     TC, ;
+: N NEXT ;
 
-$4000 ORG
+: GO 0 DO NEXT LOOP ;
+
+0 VALUE FD
+0 VALUE LEN
+
+\ load binary rom file to target addr
+: load-rom ( t-addr filename )
+  0 to fd
+  R/O OPEN-FILE THROW TO FD
+  DUP RAM +     ( addr in host )
+  $10000 ROT -  ( max chars to read )
+  FD            ( fd )
+  read-file throw TO LEN
+;
+
+$4000 s" tests/ADDD.bin" load-rom
+
+$4000 ORG STATUS
+
