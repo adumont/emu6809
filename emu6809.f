@@ -333,10 +333,21 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ADDB  ext ) 'EA    TC@ ADDB ; $FB BIND
 :NONAME ( ADDB  ind ) 'IND   TC@ ADDB ; $EB BIND
 
-:NONAME ( ADDD  imm ) ; $C3 BIND
-:NONAME ( ADDD  dir ) ; $D3 BIND
-:NONAME ( ADDD  ext ) ; $F3 BIND
-:NONAME ( ADDD  ind ) ; $E3 BIND
+: ?VW  ( w w -- f ) OVER $7FFF AND OVER $7FFF AND + $8000 AND TF ; \ returns flag used to set V
+
+: ADD16 ( w w -- w ) \ sets flags
+  ?VW >R
+  + DUP
+  $10000 AND TF DUP >C
+  R> = 0= >V
+  $FFFF AND >NW >Z
+;
+
+: ADDD ( b -- )  _D W@ ADD16 _D W! ;
+:NONAME ( ADDD  imm ) WORD@      ADDD ; $C3 BIND
+:NONAME ( ADDD  dir ) 'DP    TW@ ADDD ; $D3 BIND
+:NONAME ( ADDD  ext ) 'EA    TW@ ADDD ; $F3 BIND
+:NONAME ( ADDD  ind ) 'IND   TW@ ADDD ; $E3 BIND
 
 : ANDA ( b -- ) _A C@ AND LDA ;
 :NONAME ( ANDA  imm ) BYTE@      ANDA ; $84 BIND
