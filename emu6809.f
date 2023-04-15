@@ -406,8 +406,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BGT   rel ) ; $2E BIND
 :NONAME ( BLE   rel ) ; $2F BIND
 
-:NONAME ( BSR   rel ) ; $8D BIND
-
 : CLR ( addr -- ) 0 SWAP C! $F0 ANDCC ;
 :NONAME ( CLRA  inh ) _A         CLR ; $4F BIND
 :NONAME ( CLRB  inh ) _B         CLR ; $5F BIND
@@ -608,6 +606,9 @@ $01 VALUE 'C    \ Carry
 :NONAME ( JSR   ext ) 'EA    JSR ; $BD BIND
 :NONAME ( JSR   ind ) 'IND   JSR ; $AD BIND
 
+:NONAME ( BSR   rel ) BYTE@ SIGNEX8 _PC W@ + JSR ; $8D BIND
+:NONAME ( LBSR  rel ) WORD@         _PC W@ + JSR ; $17 BIND
+
 :NONAME ( ROL   dir ) ; $09 BIND
 :NONAME ( ROL   ind ) ; $69 BIND
 :NONAME ( ROL   ext ) ; $79 BIND
@@ -754,3 +755,6 @@ $01 VALUE 'C    \ Carry
 $4000 s" tests/ADDD.bin" load-rom
 
 $4000 ORG
+1234 _D W!
+0300 _S W!
+0400 _U W!
