@@ -526,13 +526,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LEAX  ind ) 'IND >Z _X W! ; $30 BIND
 :NONAME ( LEAY  ind ) 'IND >Z _Y W! ; $31 BIND
 
-:NONAME ( LSL   dir ) ; $08 BIND
-:NONAME ( LSL   ind ) ; $68 BIND
-:NONAME ( LSL   ext ) ; $78 BIND
-
-:NONAME ( LSLA  inh ) ; $48 BIND
-:NONAME ( LSLB  inh ) ; $58 BIND
-
 :NONAME ( LSR   dir ) ; $04 BIND
 :NONAME ( LSR   ext ) ; $74 BIND
 :NONAME ( LSR   ind ) ; $64 BIND
