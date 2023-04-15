@@ -412,40 +412,52 @@ $01 VALUE 'C    \ Carry
 :NONAME ( CLR   ext ) ; $7F BIND
 :NONAME ( CLR   ind ) ; $6F BIND
 
-:NONAME ( CMPA  imm ) ; $81 BIND
-:NONAME ( CMPA  dir ) ; $91 BIND
-:NONAME ( CMPA  ext ) ; $B1 BIND
-:NONAME ( CMPA  ind ) ; $A1 BIND
+\ CMP8: performs REG + 1complement(operand) + 1 and updates flags
+: CMP8 ( byte reg -- ) SWAP NOT $FF AND 1+ ADD DROP ;
 
-:NONAME ( CMPB  imm ) ; $C1 BIND
-:NONAME ( CMPB  dir ) ; $D1 BIND
-:NONAME ( CMPB  ext ) ; $F1 BIND
-:NONAME ( CMPB  ind ) ; $E1 BIND
+: CMPA ( -- reg ) _A C@ CMP8 ;
+:NONAME ( CMPA  imm ) BYTE@      CMPA ; $81 BIND
+:NONAME ( CMPA  dir ) 'DP    TC@ CMPA ; $91 BIND
+:NONAME ( CMPA  ext ) 'EA    TC@ CMPA ; $B1 BIND
+:NONAME ( CMPA  ind ) 'IND   TC@ CMPA ; $A1 BIND
 
-:NONAME ( CMPD  imm ) ; $1083 BIND2
-:NONAME ( CMPD  dir ) ; $1093 BIND2
-:NONAME ( CMPD  ext ) ; $10B3 BIND2
-:NONAME ( CMPD  ind ) ; $10A3 BIND2
+: CMPB ( -- reg ) _B C@ CMP8 ;
+:NONAME ( CMPB  imm ) BYTE@      CMPB ; $C1 BIND
+:NONAME ( CMPB  dir ) 'DP    TC@ CMPB ; $D1 BIND
+:NONAME ( CMPB  ext ) 'EA    TC@ CMPB ; $F1 BIND
+:NONAME ( CMPB  ind ) 'IND   TC@ CMPB ; $E1 BIND
 
-:NONAME ( CMPS  imm ) ; $118C BIND2
-:NONAME ( CMPS  dir ) ; $119C BIND2
-:NONAME ( CMPS  ext ) ; $11BC BIND2
-:NONAME ( CMPS  ind ) ; $11AC BIND2
+: CMP16 ( word wreg -- ) SWAP NOT $FFFF AND 1+ ADD16 DROP ;
 
-:NONAME ( CMPU  imm ) ; $1183 BIND2
-:NONAME ( CMPU  dir ) ; $1193 BIND2
-:NONAME ( CMPU  ext ) ; $11B3 BIND2
-:NONAME ( CMPU  ind ) ; $11A3 BIND2
+: CMPD ( -- reg ) _D W@ CMP16 ;
+:NONAME ( CMPD  imm ) WORD@      CMPD ; $1083 BIND2
+:NONAME ( CMPD  dir ) 'DP    TW@ CMPD ; $1093 BIND2
+:NONAME ( CMPD  ext ) 'EA    TW@ CMPD ; $10B3 BIND2
+:NONAME ( CMPD  ind ) 'IND   TW@ CMPD ; $10A3 BIND2
 
-:NONAME ( CMPX  imm ) ; $8C BIND
-:NONAME ( CMPX  dir ) ; $9C BIND
-:NONAME ( CMPX  ext ) ; $BC BIND
-:NONAME ( CMPX  ind ) ; $AC BIND
+: CMPS ( -- reg ) _S W@ CMP16 ;
+:NONAME ( CMPS  imm ) WORD@      CMPS ; $118C BIND2
+:NONAME ( CMPS  dir ) 'DP    TW@ CMPS ; $119C BIND2
+:NONAME ( CMPS  ext ) 'EA    TW@ CMPS ; $11BC BIND2
+:NONAME ( CMPS  ind ) 'IND   TW@ CMPS ; $11AC BIND2
 
-:NONAME ( CMPY  imm ) ; $108C BIND2
-:NONAME ( CMPY  dir ) ; $109C BIND2
-:NONAME ( CMPY  ext ) ; $10BC BIND2
-:NONAME ( CMPY  ind ) ; $10AC BIND2
+: CMPU ( -- reg ) _U W@ CMP16 ;
+:NONAME ( CMPU  imm ) WORD@      CMPU ; $1183 BIND2
+:NONAME ( CMPU  dir ) 'DP    TW@ CMPU ; $1193 BIND2
+:NONAME ( CMPU  ext ) 'EA    TW@ CMPU ; $11B3 BIND2
+:NONAME ( CMPU  ind ) 'IND   TW@ CMPU ; $11A3 BIND2
+
+: CMPX ( -- reg ) _X W@ CMP16 ;
+:NONAME ( CMPX  imm ) WORD@      CMPX ; $8C BIND
+:NONAME ( CMPX  dir ) 'DP    TW@ CMPX ; $9C BIND
+:NONAME ( CMPX  ext ) 'EA    TW@ CMPX ; $BC BIND
+:NONAME ( CMPX  ind ) 'IND   TW@ CMPX ; $AC BIND
+
+: CMPY ( -- reg ) _Y W@ CMP16 ;
+:NONAME ( CMPY  imm ) WORD@      CMPY ; $108C BIND2
+:NONAME ( CMPY  dir ) 'DP    TW@ CMPY ; $109C BIND2
+:NONAME ( CMPY  ext ) 'EA    TW@ CMPY ; $10BC BIND2
+:NONAME ( CMPY  ind ) 'IND   TW@ CMPY ; $10AC BIND2
 
 :NONAME ( COM   dir ) ; $03 BIND
 :NONAME ( COM   ext ) ; $73 BIND
