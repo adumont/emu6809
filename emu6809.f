@@ -375,14 +375,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ASRA  inh ) ; $47 BIND
 :NONAME ( ASRB  inh ) ; $57 BIND
 
-:NONAME ( BCC   rel ) ; $24 BIND
-:NONAME ( BCS   rel ) ; $25 BIND
-:NONAME ( BEQ   rel ) ; $27 BIND
-:NONAME ( BGE   rel ) ; $2C BIND
-:NONAME ( BGT   rel ) ; $2E BIND
-:NONAME ( BHI   rel ) ; $22 BIND
-:NONAME ( BHS   rel ) ; $24 BIND
-
 :NONAME ( BITA  imm ) ; $85 BIND
 :NONAME ( BITA  dir ) ; $95 BIND
 :NONAME ( BITA  ext ) ; $B5 BIND
@@ -393,18 +385,25 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BITB  ext ) ; $F5 BIND
 :NONAME ( BITB  ind ) ; $E5 BIND
 
-:NONAME ( BLE   rel ) ; $2F BIND
-:NONAME ( BLO   rel ) ; $25 BIND
+: ?BRA BYTE@ SWAP IF SIGNEX8 _PC W@ + _PC! ELSE DROP THEN ;
+:NONAME ( BRA   rel ) 1                ?BRA ; $20 BIND
+:NONAME ( BRN   rel ) 0                ?BRA ; $21 BIND
+:NONAME ( BHI   rel ) ; $22 BIND
 :NONAME ( BLS   rel ) ; $23 BIND
-:NONAME ( BLT   rel ) ; $2D BIND
-:NONAME ( BMI   rel ) ; $2B BIND
-:NONAME ( BNE   rel ) ; $26 BIND
-:NONAME ( BPL   rel ) ; $2A BIND
-:NONAME ( BRA   rel ) ; $20 BIND
-:NONAME ( BRN   rel ) ; $21 BIND
-:NONAME ( BSR   rel ) ; $8D BIND
+:NONAME ( BCC   rel ) C> 0=            ?BRA ; $24 BIND
+:NONAME ( BCS   rel ) C>               ?BRA ; $25 BIND
+:NONAME ( BNE   rel ) _CC C@ 'Z AND 0= ?BRA ; $26 BIND
+:NONAME ( BEQ   rel ) _CC C@ 'Z AND    ?BRA ; $27 BIND
 :NONAME ( BVC   rel ) ; $28 BIND
 :NONAME ( BVS   rel ) ; $29 BIND
+:NONAME ( BPL   rel ) ; $2A BIND
+:NONAME ( BMI   rel ) ; $2B BIND
+:NONAME ( BGE   rel ) ; $2C BIND
+:NONAME ( BLT   rel ) ; $2D BIND
+:NONAME ( BGT   rel ) ; $2E BIND
+:NONAME ( BLE   rel ) ; $2F BIND
+
+:NONAME ( BSR   rel ) ; $8D BIND
 
 :NONAME ( CLRA  inh ) 0 LDA 'C CLEAR ; $4F BIND
 :NONAME ( CLRB  inh ) 0 LDB 'C CLEAR ; $5F BIND
@@ -491,20 +490,19 @@ $01 VALUE 'C    \ Carry
 :NONAME ( JSR   ext ) ; $BD BIND
 :NONAME ( JSR   ind ) ; $AD BIND
 
-:NONAME ( LBCC  rel ) ; $1024 BIND2
-:NONAME ( LBCS  rel ) ; $1025 BIND2
-:NONAME ( LBEQ  rel ) ; $1027 BIND2
-:NONAME ( LBGE  rel ) ; $102C BIND2
-:NONAME ( LBGT  rel ) ; $102E BIND2
+: ?LBR ( f -- ) WORD@ SWAP IF _PC W@ + _PC! ELSE DROP THEN ; \ long branch if flag is set
+:NONAME ( LBCC  rel ) _CC C@ 'C AND 0= ?LBR ; $1024 BIND2
+:NONAME ( LBCS  rel ) _CC C@ 'C AND    ?LBR ; $1025 BIND2
+:NONAME ( LBEQ  rel ) _CC C@ 'Z AND    ?LBR ; $1027 BIND2
+:NONAME ( LBGE  rel ) _CC C@ DUP     'V AND TF SWAP 'N AND TF XOR 0=                    ?LBR ; $102C BIND2
+:NONAME ( LBGT  rel ) _CC C@ DUP DUP 'V AND TF SWAP 'N AND TF XOR 0= SWAP 'Z AND 0= AND ?LBR ; $102E BIND2
 :NONAME ( LBHI  rel ) ; $1022 BIND2
-:NONAME ( LBHS  rel ) ; $1024 BIND2
 :NONAME ( LBLE  rel ) ; $102F BIND2
-:NONAME ( LBLO  rel ) ; $1025 BIND2
 :NONAME ( LBLS  rel ) ; $1023 BIND2
 :NONAME ( LBLT  rel ) ; $102D BIND2
-:NONAME ( LBMI  rel ) ; $102B BIND2
-:NONAME ( LBNE  rel ) ; $1026 BIND2
-:NONAME ( LBPL  rel ) ; $102A BIND2
+:NONAME ( LBMI  rel ) _CC C@ 'N AND    ?LBR ; $102B BIND2
+:NONAME ( LBNE  rel ) _CC C@ 'Z AND 0= ?LBR ; $1026 BIND2
+:NONAME ( LBPL  rel ) _CC C@ 'N AND 0= ?LBR ; $102A BIND2
 :NONAME ( LBRA  rel ) ; $16 BIND
 :NONAME ( LBRN  rel ) ; $1021 BIND2
 :NONAME ( LBSR  rel ) ; $17 BIND
@@ -636,7 +634,7 @@ $01 VALUE 'C    \ Carry
 
 : SREG ( -- src-addr f )
   $F0 AND 4 RSHIFT DUP
-  CELLS REGS + @ TO SRC_ADDR 
+  CELLS REGS + @ TO SRC_ADDR
   $08 AND        TO SRC_WIDTH ;
 
 : DREG ( -- src-addr f )
