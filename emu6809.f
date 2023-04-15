@@ -22,6 +22,7 @@ HEX
 : NOT NEG 1 - ;
 : CLS CLEARSTACK ;
 : W, ( word -- ) $100 /MOD SWAP C, C, ; \ word comma
+: TF ( n -- f ) 0= 0= ; \ return TRUE (-1) or FALSE (0)
 
 : C? C@ C. ;
 : W? W@ W. ;
@@ -309,13 +310,13 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ADCB  ind ) ; $E9 BIND
 
 : +>H ( b b --   ) OVER $0F AND OVER $0F AND + $10 AND >H ; \ sets H in addition
-: ?V  ( b b -- f ) OVER $7F AND OVER $7F AND + $80 AND 0= 0= ; \ returns flag used to set V
+: ?V  ( b b -- f ) OVER $7F AND OVER $7F AND + $80 AND TF ; \ returns flag used to set V
 
-: ADD ( b b -- b ) \ sets flags 
+: ADD ( b b -- b ) \ sets flags
   +>H
   ?V >R
   + DUP
-  $100 AND 0= 0= DUP >C
+  $100 AND TF DUP >C
   R> = 0= >V
   $FF AND >N >Z
 ;
