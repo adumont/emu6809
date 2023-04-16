@@ -198,12 +198,14 @@ $01 VALUE 'C    \ Carry
 : SET   ( mask -- )     _CC C@ OR  _CC C! ;
 : UPDATE-FLAG ( b/f reg -- ) SWAP IF SET ELSE CLEAR THEN ;
 
-: >N   ( b -- b ) DUP   $80 AND 'N UPDATE-FLAG ; \ non-droppy, byte version
-: >NW  ( w -- w ) DUP $8000 AND 'N UPDATE-FLAG ; \ non-droppy, word version
-: >Z   ( b -- b ) DUP        0= 'Z UPDATE-FLAG ; \ non-droppy
-: >H   ( f --   )               'H UPDATE-FLAG ; \ this one is droppy
-: >V   ( f --   )               'V UPDATE-FLAG ; \ this one is droppy
-: >C   ( f --   )               'C UPDATE-FLAG ; \ this one is droppy
+: >N   ( b -- b ) DUP   $80 AND    'N UPDATE-FLAG ; \ non-droppy, byte version
+: >Z   ( b -- b ) DUP   $FF AND 0= 'Z UPDATE-FLAG ; \ non-droppy, byte version
+: >NW  ( w -- w ) DUP $8000 AND    'N UPDATE-FLAG ; \ non-droppy, word version
+: >ZW  ( w -- w ) DUP $FFFF AND 0= 'Z UPDATE-FLAG ; \ non-droppy, word version
+: >H   ( f --   )                  'H UPDATE-FLAG ; \ this one is droppy
+: >V   ( f --   )                  'V UPDATE-FLAG ; \ this one is droppy
+: >C   ( f --   )                  'C UPDATE-FLAG ; \ this one is droppy
+: >NZ >N >Z ;
 
 : N>   (   -- f ) _CC C@ 'N AND TF ;
 : Z>   (   -- f ) _CC C@ 'Z AND TF ;
@@ -253,43 +255,43 @@ $01 VALUE 'C    \ Carry
 ;
 \ Opcodes definitions
 
-: LDA ( b -- ) >N >Z 'V CLEAR _A C! ;
+: LDA ( b -- ) >NZ 'V CLEAR _A C! ;
 :NONAME ( LDA   imm ) BYTE@      LDA ; $86 BIND
 :NONAME ( LDA   dir ) 'DP    TC@ LDA ; $96 BIND
 :NONAME ( LDA   ext ) 'EA    TC@ LDA ; $B6 BIND
 :NONAME ( LDA   ind ) 'IND   TC@ LDA ; $A6 BIND
 
-: LDB ( b -- ) >N >Z 'V CLEAR _B C! ;
+: LDB ( b -- ) >NZ 'V CLEAR _B C! ;
 :NONAME ( LDB   imm ) BYTE@      LDB ; $C6 BIND
 :NONAME ( LDB   dir ) 'DP    TC@ LDB ; $D6 BIND
 :NONAME ( LDB   ext ) 'EA    TC@ LDB ; $F6 BIND
 :NONAME ( LDB   ind ) 'IND   TC@ LDB ; $E6 BIND
 
-: LDD ( w -- ) >NW >Z 'V CLEAR _D W! ;
+: LDD ( w -- ) >NW >ZW 'V CLEAR _D W! ;
 :NONAME ( LDD   imm ) WORD@      LDD ; $CC BIND
 :NONAME ( LDD   dir ) 'DP    TW@ LDD ; $DC BIND
 :NONAME ( LDD   ext ) 'EA    TW@ LDD ; $FC BIND
 :NONAME ( LDD   ind ) 'IND   TW@ LDD ; $EC BIND
 
-: LDS ( w -- ) >NW >Z 'V CLEAR _S W! ;
+: LDS ( w -- ) >NW >ZW 'V CLEAR _S W! ;
 :NONAME ( LDS   imm ) WORD@      LDS ; $10CE BIND2
 :NONAME ( LDS   dir ) 'DP    TW@ LDS ; $10DE BIND2
 :NONAME ( LDS   ext ) 'EA    TW@ LDS ; $10FE BIND2
 :NONAME ( LDS   ind ) 'IND   TW@ LDS ; $10EE BIND2
 
-: LDU ( w -- ) >NW >Z 'V CLEAR _U W! ;
+: LDU ( w -- ) >NW >ZW 'V CLEAR _U W! ;
 :NONAME ( LDU   imm ) WORD@      LDU ; $CE BIND
 :NONAME ( LDU   dir ) 'DP    TW@ LDU ; $DE BIND
 :NONAME ( LDU   ext ) 'EA    TW@ LDU ; $FE BIND
 :NONAME ( LDU   ind ) 'IND   TW@ LDU ; $EE BIND
 
-: LDX ( w -- ) >NW >Z 'V CLEAR _X W! ;
+: LDX ( w -- ) >NW >ZW 'V CLEAR _X W! ;
 :NONAME ( LDX   imm ) WORD@      LDX ; $8E BIND
 :NONAME ( LDX   dir ) 'DP    TW@ LDX ; $9E BIND
 :NONAME ( LDX   ext ) 'EA    TW@ LDX ; $BE BIND
 :NONAME ( LDX   ind ) 'IND   TW@ LDX ; $AE BIND
 
-: LDY ( w -- ) >NW >Z 'V CLEAR _Y W! ;
+: LDY ( w -- ) >NW >ZW 'V CLEAR _Y W! ;
 :NONAME ( LDY   imm ) WORD@      LDY ; $108E BIND2
 :NONAME ( LDY   dir ) 'DP    TW@ LDY ; $109E BIND2
 :NONAME ( LDY   ext ) 'EA    TW@ LDY ; $10BE BIND2
@@ -321,7 +323,7 @@ $01 VALUE 'C    \ Carry
   + DUP
   $100 AND TF DUP >C
   R> = 0= >V
-  $FF AND >N >Z
+  >NZ
 ;
 
 : ADDA ( b -- )  _A C@ ADD _A C! ;
@@ -343,7 +345,7 @@ $01 VALUE 'C    \ Carry
   + DUP
   $10000 AND TF DUP >C
   R> = 0= >V
-  $FFFF AND >NW >Z
+  >NW >ZW
 ;
 
 : ADDD  ( b -- )  _D W@ ADD16 _D W! ;
@@ -505,7 +507,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( CMPY  ext ) 'EA    TW@ CMPY ; $10BC BIND2
 :NONAME ( CMPY  ind ) 'IND   TW@ CMPY ; $10AC BIND2
 
-: COM ( addr -- ) DUP C@ NOT $FF AND >N >Z 'V CLEAR 'C SET SWAP C! ;
+: COM ( addr -- ) DUP C@ NOT >NZ 'V CLEAR 'C SET SWAP C! ;
 :NONAME ( COMA  inh ) _A          COM ; $43 BIND
 :NONAME ( COMB  inh ) _B          COM ; $53 BIND
 :NONAME ( COM   dir ) 'DP   RAM + COM ; $03 BIND
@@ -516,14 +518,14 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( DAA   inh ) ; $19 BIND
 
-: DEC ( addr -- ) DUP C@ DUP $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >N >Z SWAP  C! ;
+: DEC ( addr -- ) DUP C@ DUP $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >NZ SWAP  C! ;
 :NONAME ( DECA  inh ) _A          DEC ; $4A BIND
 :NONAME ( DECB  inh ) _B          DEC ; $5A BIND
 :NONAME ( DEC   dir ) 'DP   RAM + DEC ; $0A BIND
 :NONAME ( DEC   ext ) 'EA   RAM + DEC ; $7A BIND
 :NONAME ( DEC   ind ) 'IND  RAM + DEC ; $6A BIND
 
-: INC ( addr -- ) DUP C@ DUP $7F = IF 'V SET ELSE 'V CLEAR THEN 1+ >N >Z SWAP  C! ;
+: INC ( addr -- ) DUP C@ DUP $7F = IF 'V SET ELSE 'V CLEAR THEN 1+ >NZ SWAP  C! ;
 :NONAME ( INCA  inh ) _A          INC ; $4C BIND
 :NONAME ( INCB  inh ) _B          INC ; $5C BIND
 :NONAME ( INC   dir ) 'DP   RAM + INC ; $0C BIND
@@ -552,10 +554,10 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LBLE  rel ) V> N> = 0= Z>    OR  ?LBR ; $102F BIND2 \ V!=N or  Z set
 :NONAME ( LBLT  rel ) V> N> = 0= Z> 0= AND ?LBR ; $102D BIND2 \ V!=N and Z clear
 
-:NONAME ( LEAS  ind ) 'IND    _S W! ; $32 BIND
-:NONAME ( LEAU  ind ) 'IND    _U W! ; $33 BIND
-:NONAME ( LEAX  ind ) 'IND >Z _X W! ; $30 BIND
-:NONAME ( LEAY  ind ) 'IND >Z _Y W! ; $31 BIND
+:NONAME ( LEAS  ind ) 'IND     _S W! ; $32 BIND
+:NONAME ( LEAU  ind ) 'IND     _U W! ; $33 BIND
+:NONAME ( LEAX  ind ) 'IND >ZW _X W! ; $30 BIND
+:NONAME ( LEAY  ind ) 'IND >ZW _Y W! ; $31 BIND
 
 :NONAME ( MUL   inh ) ; $3D BIND
 
