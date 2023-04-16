@@ -364,6 +364,30 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ANDB  ext ) 'EA    TC@ ANDB ; $F4 BIND
 :NONAME ( ANDB  ind ) 'IND   TC@ ANDB ; $E4 BIND
 
+: EORA  ( b -- ) _A C@ XOR LDA ;
+:NONAME ( EORA  imm ) BYTE@     EORA ; $88 BIND
+:NONAME ( EORA  dir ) 'DP   TC@ EORA ; $98 BIND
+:NONAME ( EORA  ext ) 'EA   TC@ EORA ; $B8 BIND
+:NONAME ( EORA  ind ) 'IND  TC@ EORA ; $A8 BIND
+
+: EORB  ( b -- ) _B C@ XOR LDB ;
+:NONAME ( EORB  imm ) BYTE@     EORB ; $C8 BIND
+:NONAME ( EORB  dir ) 'DP   TC@ EORB ; $D8 BIND
+:NONAME ( EORB  ext ) 'EA   TC@ EORB ; $F8 BIND
+:NONAME ( EORB  ind ) 'IND  TC@ EORB ; $E8 BIND
+
+: ORA   ( b -- ) _A C@ OR LDA ;
+:NONAME ( ORA   imm ) BYTE@     ORA ; $8A BIND
+:NONAME ( ORA   dir ) 'DP   TC@ ORA ; $9A BIND
+:NONAME ( ORA   ext ) 'EA   TC@ ORA ; $BA BIND
+:NONAME ( ORA   ind ) 'IND  TC@ ORA ; $AA BIND
+
+: ORB ( b -- ) _B C@ OR LDB ;
+:NONAME ( ORB   imm ) BYTE@     ORB ; $CA BIND
+:NONAME ( ORB   dir ) 'DP   TC@ ORB ; $DA BIND
+:NONAME ( ORB   ext ) 'EA   TC@ ORB ; $FA BIND
+:NONAME ( ORB   ind ) 'IND  TC@ ORB ; $EA BIND
+
 :NONAME ( ASL   dir ) ; $08 BIND
 :NONAME ( ASL   ind ) ; $68 BIND
 :NONAME ( ASL   ext ) ; $78 BIND
