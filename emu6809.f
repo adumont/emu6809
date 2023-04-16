@@ -576,7 +576,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LEAX  ind ) 'IND >ZW _X W! ; $30 BIND
 :NONAME ( LEAY  ind ) 'IND >ZW _Y W! ; $31 BIND
 
-:NONAME ( MUL   inh ) ; $3D BIND
+:NONAME ( MUL   inh ) _A C@ _B C@ * >ZW DUP $80 AND >C _D W! ; $3D BIND
 
 :NONAME ( NEG   ext ) ; $70 BIND
 :NONAME ( NEG   ind ) ; $60 BIND
