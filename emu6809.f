@@ -516,23 +516,19 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( DAA   inh ) ; $19 BIND
 
-: REG-- ( addr -- ) DUP  C@ $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >N >Z SWAP  C! ;
-:NONAME ( DECA  inh ) _A    REG-- ; $4A BIND
-:NONAME ( DECB  inh ) _B    REG-- ; $5A BIND
+: DEC ( addr -- ) DUP C@ DUP $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >N >Z SWAP  C! ;
+:NONAME ( DECA  inh ) _A          DEC ; $4A BIND
+:NONAME ( DECB  inh ) _B          DEC ; $5A BIND
+:NONAME ( DEC   dir ) 'DP   RAM + DEC ; $0A BIND
+:NONAME ( DEC   ext ) 'EA   RAM + DEC ; $7A BIND
+:NONAME ( DEC   ind ) 'IND  RAM + DEC ; $6A BIND
 
-: REG++ ( addr -- ) DUP  C@ $7F = IF 'V SET ELSE 'V CLEAR THEN 1+ >N >Z SWAP  C! ;
-:NONAME ( INCA  inh ) _A    REG++ ; $4C BIND
-:NONAME ( INCB  inh ) _B    REG++ ; $5C BIND
-
-: MEM-- ( addr -- ) DUP TC@ $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >N >Z SWAP TC! ;
-:NONAME ( DEC   dir ) 'DP   MEM-- ; $0A BIND
-:NONAME ( DEC   ext ) 'EA   MEM-- ; $7A BIND
-:NONAME ( DEC   ind ) 'IND  MEM-- ; $6A BIND
-
-: MEM++ ( addr -- ) DUP TC@ $7F = IF 'V SET ELSE 'V CLEAR THEN 1+ >N >Z SWAP TC! ;
-:NONAME ( INC   dir ) 'DP   MEM++ ; $0C BIND
-:NONAME ( INC   ext ) 'EA   MEM++ ; $7C BIND
-:NONAME ( INC   ind ) 'IND  MEM++ ; $6C BIND
+: INC ( addr -- ) DUP C@ DUP $7F = IF 'V SET ELSE 'V CLEAR THEN 1+ >N >Z SWAP  C! ;
+:NONAME ( INCA  inh ) _A          INC ; $4C BIND
+:NONAME ( INCB  inh ) _B          INC ; $5C BIND
+:NONAME ( INC   dir ) 'DP   RAM + INC ; $0C BIND
+:NONAME ( INC   ext ) 'EA   RAM + INC ; $7C BIND
+:NONAME ( INC   ind ) 'IND  RAM + INC ; $6C BIND
 
 :NONAME ( JMP   dir ) 'DP  _PC! ; $0E BIND
 :NONAME ( JMP   ext ) 'EA  _PC! ; $7E BIND
