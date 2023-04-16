@@ -388,23 +388,23 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BITB  ext ) ; $F5 BIND
 :NONAME ( BITB  ind ) ; $E5 BIND
 
-: ?BRA BYTE@ SWAP IF SIGNEX8 _PC W@ + _PC! ELSE DROP THEN ;
-:NONAME ( BRA   rel ) 1                ?BRA ; $20 BIND
-:NONAME ( BRN   rel ) 0                ?BRA ; $21 BIND
-:NONAME ( BHI   rel ) ; $22 BIND
-:NONAME ( BLS   rel ) ; $23 BIND
-:NONAME ( BCC   rel ) C> 0=            ?BRA ; $24 BIND
-:NONAME ( BCS   rel ) C>               ?BRA ; $25 BIND
-:NONAME ( BNE   rel ) _CC C@ 'Z AND 0= ?BRA ; $26 BIND
-:NONAME ( BEQ   rel ) _CC C@ 'Z AND    ?BRA ; $27 BIND
-:NONAME ( BVC   rel ) ; $28 BIND
-:NONAME ( BVS   rel ) ; $29 BIND
-:NONAME ( BPL   rel ) ; $2A BIND
-:NONAME ( BMI   rel ) ; $2B BIND
-:NONAME ( BGE   rel ) ; $2C BIND
-:NONAME ( BLT   rel ) ; $2D BIND
-:NONAME ( BGT   rel ) ; $2E BIND
-:NONAME ( BLE   rel ) ; $2F BIND
+: ?BRA ( f -- ) BYTE@ SWAP IF SIGNEX8 _PC W@ + _PC! ELSE DROP THEN ; \ branch if flag is set
+:NONAME ( BRA   rel ) 1                    ?BRA ; $20 BIND \ Always
+:NONAME ( BRN   rel ) 0                    ?BRA ; $21 BIND \ Never
+:NONAME ( BHI   rel ) Z> 0=      C> 0= AND ?BRA ; $22 BIND \ Z and C clear
+:NONAME ( BLS   rel ) Z>         C>    OR  ?BRA ; $23 BIND \ Z or  C set
+:NONAME ( BCC   rel ) C> 0=                ?BRA ; $24 BIND \ C clear
+:NONAME ( BCS   rel ) C>                   ?BRA ; $25 BIND \ C set
+:NONAME ( BNE   rel ) Z> 0=                ?BRA ; $26 BIND \ Z clear
+:NONAME ( BEQ   rel ) Z>                   ?BRA ; $27 BIND \ Z set
+:NONAME ( BVC   rel ) V> 0=                ?BRA ; $28 BIND \ V clear
+:NONAME ( BVS   rel ) V>                   ?BRA ; $29 BIND \ V set
+:NONAME ( BPL   rel ) N> 0=                ?BRA ; $2A BIND \ N clear
+:NONAME ( BMI   rel ) N>                   ?BRA ; $2B BIND \ N set
+:NONAME ( BGE   rel ) V> N> =    Z>    OR  ?BRA ; $2C BIND \ V==N or  Z set
+:NONAME ( BGT   rel ) V> N> =    Z> 0= AND ?BRA ; $2E BIND \ V==N and Z clear
+:NONAME ( BLE   rel ) V> N> = 0= Z>    OR  ?BRA ; $2F BIND \ V!=N or  Z set
+:NONAME ( BLT   rel ) V> N> = 0= Z> 0= AND ?BRA ; $2D BIND \ V!=N and Z clear
 
 : CLR ( addr -- ) 0 SWAP C! $F0 ANDCC ;
 :NONAME ( CLRA  inh ) _A         CLR ; $4F BIND
@@ -500,22 +500,22 @@ $01 VALUE 'C    \ Carry
 :NONAME ( JMP   ind ) ; $6E BIND
 
 : ?LBR ( f -- ) WORD@ SWAP IF _PC W@ + _PC! ELSE DROP THEN ; \ long branch if flag is set
-:NONAME ( LBCC  rel ) _CC C@ 'C AND 0= ?LBR ; $1024 BIND2
-:NONAME ( LBCS  rel ) _CC C@ 'C AND    ?LBR ; $1025 BIND2
-:NONAME ( LBEQ  rel ) _CC C@ 'Z AND    ?LBR ; $1027 BIND2
-:NONAME ( LBGE  rel ) _CC C@ DUP     'V AND TF SWAP 'N AND TF XOR 0=                    ?LBR ; $102C BIND2
-:NONAME ( LBGT  rel ) _CC C@ DUP DUP 'V AND TF SWAP 'N AND TF XOR 0= SWAP 'Z AND 0= AND ?LBR ; $102E BIND2
-:NONAME ( LBHI  rel ) ; $1022 BIND2
-:NONAME ( LBLE  rel ) ; $102F BIND2
-:NONAME ( LBLS  rel ) ; $1023 BIND2
-:NONAME ( LBLT  rel ) ; $102D BIND2
-:NONAME ( LBMI  rel ) _CC C@ 'N AND    ?LBR ; $102B BIND2
-:NONAME ( LBNE  rel ) _CC C@ 'Z AND 0= ?LBR ; $1026 BIND2
-:NONAME ( LBPL  rel ) _CC C@ 'N AND 0= ?LBR ; $102A BIND2
-:NONAME ( LBRA  rel ) 1                ?LBR ; $16 BIND
-:NONAME ( LBRN  rel ) 0                ?LBR ; $1021 BIND2
-:NONAME ( LBVC  rel ) _CC C@ 'V AND 0= ?LBR ; $1028 BIND2
-:NONAME ( LBVS  rel ) _CC C@ 'V        ?LBR ; $1029 BIND2
+:NONAME ( LBRA  rel ) 1                    ?LBR ; $16   BIND  \ Always
+:NONAME ( LBRN  rel ) 0                    ?LBR ; $1021 BIND2 \ Never
+:NONAME ( LBHI  rel ) Z> 0= C> 0= AND      ?LBR ; $1022 BIND2 \ Z and C clear
+:NONAME ( LBLS  rel ) Z>    C>    OR       ?LBR ; $1023 BIND2 \ Z or  C set
+:NONAME ( LBCC  rel ) C> 0=                ?LBR ; $1024 BIND2 \ C clear
+:NONAME ( LBCS  rel ) C>                   ?LBR ; $1025 BIND2 \ C set
+:NONAME ( LBNE  rel ) Z> 0=                ?LBR ; $1026 BIND2 \ Z clear
+:NONAME ( LBEQ  rel ) Z>                   ?LBR ; $1027 BIND2 \ Z set
+:NONAME ( LBVC  rel ) V> 0=                ?LBR ; $1028 BIND2 \ V clear
+:NONAME ( LBVS  rel ) V>                   ?LBR ; $1029 BIND2 \ V set
+:NONAME ( LBPL  rel ) N> 0=                ?LBR ; $102A BIND2 \ N clear
+:NONAME ( LBMI  rel ) N>                   ?LBR ; $102B BIND2 \ N set
+:NONAME ( LBGE  rel ) V> N> =    Z>    OR  ?LBR ; $102C BIND2 \ V==N or  Z set
+:NONAME ( LBGT  rel ) V> N> =    Z> 0= AND ?LBR ; $102E BIND2 \ V==N and Z clear
+:NONAME ( LBLE  rel ) V> N> = 0= Z>    OR  ?LBR ; $102F BIND2 \ V!=N or  Z set
+:NONAME ( LBLT  rel ) V> N> = 0= Z> 0= AND ?LBR ; $102D BIND2 \ V!=N and Z clear
 
 :NONAME ( LEAS  ind ) 'IND    _S W! ; $32 BIND
 :NONAME ( LEAU  ind ) 'IND    _U W! ; $33 BIND
