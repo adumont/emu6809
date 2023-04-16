@@ -539,6 +539,13 @@ $01 VALUE 'C    \ Carry
 :NONAME ( INC   ext ) 'EA   RAM + INC ; $7C BIND
 :NONAME ( INC   ind ) 'IND  RAM + INC ; $6C BIND
 
+: TST ( addr -- ) C@ >NZ 'V CLEAR ;
+:NONAME ( TSTA  inh ) _A          TST ; $4D BIND
+:NONAME ( TSTB  inh ) _B          TST ; $5D BIND
+:NONAME ( TST   dir ) 'DP   RAM + TST ; $0D BIND
+:NONAME ( TST   ext ) 'EA   RAM + TST ; $7D BIND
+:NONAME ( TST   ind ) 'IND  RAM + TST ; $6D BIND
+
 :NONAME ( JMP   dir ) 'DP  _PC! ; $0E BIND
 :NONAME ( JMP   ext ) 'EA  _PC! ; $7E BIND
 :NONAME ( JMP   ind ) 'IND _PC! ; $6E BIND
@@ -737,13 +744,6 @@ $01 VALUE 'C    \ Carry
   SRC_ADDR SRC_WIDTH IF C! ELSE W! THEN
   DST_ADDR DST_WIDTH IF C! ELSE W! THEN
 ; $1E BIND
-
-:NONAME ( TST   dir ) ; $0D BIND
-:NONAME ( TST   ext ) ; $7D BIND
-:NONAME ( TST   ind ) ; $6D BIND
-
-:NONAME ( TSTA  inh ) ; $4D BIND
-:NONAME ( TSTB  inh ) ; $5D BIND
 
 \ -- store a minimal program
 
