@@ -312,12 +312,12 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ADCB  ext ) ; $F9 BIND
 :NONAME ( ADCB  ind ) ; $E9 BIND
 
-: +>H ( b b --   ) OVER $0F AND OVER $0F AND + $10 AND >H ; \ sets H in addition
-: ?V  ( b b -- f ) OVER $7F AND OVER $7F AND + $80 AND TF ; \ returns flag used to set V
+: ADD>H ( b b --   ) OVER $0F AND OVER $0F AND + $10 AND >H ; \ sets H for addition
+: ADD?V ( b b -- f ) OVER $7F AND OVER $7F AND + $80 AND TF ; \ returns flag used to set V
 
 : ADD ( b b -- b ) \ sets flags
-  +>H
-  ?V >R
+  ADD>H
+  ADD?V >R
   + DUP
   $100 AND TF DUP >C
   R> = 0= >V
