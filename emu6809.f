@@ -402,6 +402,27 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ASRA  inh ) ; $47 BIND
 :NONAME ( ASRB  inh ) ; $57 BIND
 
+:NONAME ( LSR   dir ) ; $04 BIND
+:NONAME ( LSR   ext ) ; $74 BIND
+:NONAME ( LSR   ind ) ; $64 BIND
+
+:NONAME ( LSRA  inh ) ; $44 BIND
+:NONAME ( LSRB  inh ) ; $54 BIND
+
+:NONAME ( ROL   dir ) ; $09 BIND
+:NONAME ( ROL   ind ) ; $69 BIND
+:NONAME ( ROL   ext ) ; $79 BIND
+
+:NONAME ( ROLA  inh ) ; $49 BIND
+:NONAME ( ROLB  inh ) ; $59 BIND
+
+:NONAME ( ROR   dir ) ; $06 BIND
+:NONAME ( ROR   ind ) ; $66 BIND
+:NONAME ( ROR   ext ) ; $76 BIND
+
+:NONAME ( RORA  inh ) ; $46 BIND
+:NONAME ( RORB  inh ) ; $56 BIND
+
 :NONAME ( BITA  imm ) ; $85 BIND
 :NONAME ( BITA  dir ) ; $95 BIND
 :NONAME ( BITA  ext ) ; $B5 BIND
@@ -546,13 +567,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( LEAX  ind ) 'IND >Z _X W! ; $30 BIND
 :NONAME ( LEAY  ind ) 'IND >Z _Y W! ; $31 BIND
 
-:NONAME ( LSR   dir ) ; $04 BIND
-:NONAME ( LSR   ext ) ; $74 BIND
-:NONAME ( LSR   ind ) ; $64 BIND
-
-:NONAME ( LSRA  inh ) ; $44 BIND
-:NONAME ( LSRB  inh ) ; $54 BIND
-
 :NONAME ( MUL   inh ) ; $3D BIND
 
 :NONAME ( NEG   ext ) ; $70 BIND
@@ -562,16 +576,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( NEGB  inh ) _B C@ NEG $FF AND LDB ; $50 BIND
 
 :NONAME ( NOP   inh ) ; $12 BIND
-
-:NONAME ( ORA   imm ) ; $8A BIND
-:NONAME ( ORA   dir ) ; $9A BIND
-:NONAME ( ORA   ext ) ; $BA BIND
-:NONAME ( ORA   ind ) ; $AA BIND
-
-:NONAME ( ORB   imm ) ; $CA BIND
-:NONAME ( ORB   dir ) ; $DA BIND
-:NONAME ( ORB   ext ) ; $FA BIND
-:NONAME ( ORB   ind ) ; $EA BIND
 
 : PUSH ( addr -- value ) DUP W@ 1- DUP ROT W! TC! ; \ pre-decrement register R (S/U), leave value on ToS, save to
 
@@ -631,18 +635,6 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( BSR   rel ) BYTE@ SIGNEX8 _PC W@ + JSR ; $8D BIND
 :NONAME ( LBSR  rel ) WORD@         _PC W@ + JSR ; $17 BIND
-
-:NONAME ( ROL   dir ) ; $09 BIND
-:NONAME ( ROL   ind ) ; $69 BIND
-:NONAME ( ROL   ext ) ; $79 BIND
-:NONAME ( ROLA  inh ) ; $49 BIND
-:NONAME ( ROLB  inh ) ; $59 BIND
-
-:NONAME ( ROR   dir ) ; $06 BIND
-:NONAME ( ROR   ind ) ; $66 BIND
-:NONAME ( ROR   ext ) ; $76 BIND
-:NONAME ( RORA  inh ) ; $46 BIND
-:NONAME ( RORB  inh ) ; $56 BIND
 
 :NONAME ( RTI   inh ) ; $3B BIND
 :NONAME ( RTS   inh ) _S PULL ( PCH) _PC 1+ C! _S PULL ( PCL) _PC C! ; $39 BIND
