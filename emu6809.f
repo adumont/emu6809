@@ -298,10 +298,9 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ABX   inh ) _X W@ _B C@ + _X W! ; $3A BIND
 
 : ANDCC ( byte ) _CC C@ AND _CC C! ;
-:NONAME ( ANDCC imm ) BYTE@ ANDCC ; $1C BIND
-
-: ORCC ( byte ) _CC C@ OR _CC C! ;
-:NONAME ( ORCC  imm ) BYTE@ ORCC ; $1A BIND
+: ORCC  ( byte ) _CC C@ OR  _CC C! ;
+:NONAME ( ANDCC imm ) BYTE@ ANDCC  ; $1C BIND
+:NONAME ( ORCC  imm ) BYTE@ ORCC   ; $1A BIND
 
 :NONAME ( ADCA  imm ) ; $89 BIND
 :NONAME ( ADCA  dir ) ; $99 BIND
