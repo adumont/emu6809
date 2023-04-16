@@ -658,7 +658,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( SBCB  ind ) ; $E2 BIND
 :NONAME ( SBCB  ext ) ; $F2 BIND
 
-:NONAME ( SEX   inh ) ; $1D BIND
+:NONAME ( SEX   inh ) _B C@ >NZ $80 AND IF $FF ELSE 0 THEN _A C! ; $1D BIND
 
 : STA ( addr -- ) _A C@ >NZ 'V CLEAR SWAP TC! ;
 :NONAME ( STA   dir ) 'DP        STA ; $97 BIND
