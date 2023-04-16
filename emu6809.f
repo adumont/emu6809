@@ -390,40 +390,45 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ORB   ext ) 'EA   TC@ ORB ; $FA BIND
 :NONAME ( ORB   ind ) 'IND  TC@ ORB ; $EA BIND
 
-:NONAME ( ASL   dir ) ; $08 BIND
-:NONAME ( ASL   ind ) ; $68 BIND
-:NONAME ( ASL   ext ) ; $78 BIND
+: ASL>V ( byte -- byte ) DUP  $80 AND TF OVER $40 AND TF XOR >V ; \ set V for ASL, non-droppy
+: ASL>C ( byte -- byte ) DUP $100 AND >C ; \ set C for ASL, non-droppy
 
-:NONAME ( ASLA  inh ) ; $48 BIND
-:NONAME ( ASLB  inh ) ; $58 BIND
+: ASL ( addr -- ) DUP C@ ASL>V 2* ASL>C >NZ SWAP C! ;
+:NONAME ( ASLA  inh ) _A          ASL ; $48 BIND
+:NONAME ( ASLB  inh ) _B          ASL ; $58 BIND
+:NONAME ( ASL   dir ) 'DP   RAM + ASL ; $08 BIND
+:NONAME ( ASL   ind ) 'EA   RAM + ASL ; $68 BIND
+:NONAME ( ASL   ext ) 'IND  RAM + ASL ; $78 BIND
 
-:NONAME ( ASR   dir ) ; $07 BIND
-:NONAME ( ASR   ext ) ; $77 BIND
-:NONAME ( ASR   ind ) ; $67 BIND
+: ASR>C DUP 1 AND >C ;
 
-:NONAME ( ASRA  inh ) ; $47 BIND
-:NONAME ( ASRB  inh ) ; $57 BIND
+: ASR ( addr -- ) DUP C@ ASR>C DUP $80 AND SWAP 2/ OR >NZ SWAP C! ;
+:NONAME ( ASRA  inh ) _A          ASR ; $47 BIND
+:NONAME ( ASRB  inh ) _B          ASR ; $57 BIND
+:NONAME ( ASR   dir ) 'DP   RAM + ASR ; $07 BIND
+:NONAME ( ASR   ext ) 'EA   RAM + ASR ; $77 BIND
+:NONAME ( ASR   ind ) 'IND  RAM + ASR ; $67 BIND
 
-:NONAME ( LSR   dir ) ; $04 BIND
-:NONAME ( LSR   ext ) ; $74 BIND
-:NONAME ( LSR   ind ) ; $64 BIND
+: LSR ( addr -- ) DUP C@ ASR>C 2/ >NZ SWAP C! ;
+:NONAME ( LSRA  inh ) _A          LSR ; $44 BIND
+:NONAME ( LSRB  inh ) _B          LSR ; $54 BIND
+:NONAME ( LSR   dir ) 'DP   RAM + LSR ; $04 BIND
+:NONAME ( LSR   ext ) 'EA   RAM + LSR ; $74 BIND
+:NONAME ( LSR   ind ) 'IND  RAM + LSR ; $64 BIND
 
-:NONAME ( LSRA  inh ) ; $44 BIND
-:NONAME ( LSRB  inh ) ; $54 BIND
+: ROL ( addr -- ) DUP C@ 2* C> IF 1 ELSE 0 THEN OR ASL>C >NZ SWAP C! ;
+:NONAME ( ROLA  inh ) _A          ROL ; $49 BIND
+:NONAME ( ROLB  inh ) _B          ROL ; $59 BIND
+:NONAME ( ROL   dir ) 'DP   RAM + ROL ; $09 BIND
+:NONAME ( ROL   ext ) 'EA   RAM + ROL ; $79 BIND
+:NONAME ( ROL   ind ) 'IND  RAM + ROL ; $69 BIND
 
-:NONAME ( ROL   dir ) ; $09 BIND
-:NONAME ( ROL   ind ) ; $69 BIND
-:NONAME ( ROL   ext ) ; $79 BIND
-
-:NONAME ( ROLA  inh ) ; $49 BIND
-:NONAME ( ROLB  inh ) ; $59 BIND
-
-:NONAME ( ROR   dir ) ; $06 BIND
-:NONAME ( ROR   ind ) ; $66 BIND
-:NONAME ( ROR   ext ) ; $76 BIND
-
-:NONAME ( RORA  inh ) ; $46 BIND
-:NONAME ( RORB  inh ) ; $56 BIND
+: ROR ( addr -- ) DUP C@ C> IF $80 ELSE 0 THEN SWAP ASR>C 2/ OR >NZ SWAP C! ;
+:NONAME ( RORA  inh ) _A          ROR ; $46 BIND
+:NONAME ( RORB  inh ) _B          ROR ; $56 BIND
+:NONAME ( ROR   dir ) 'DP   RAM + ROR ; $06 BIND
+:NONAME ( ROR   ext ) 'EA   RAM + ROR ; $76 BIND
+:NONAME ( ROR   ind ) 'IND  RAM + ROR ; $66 BIND
 
 :NONAME ( BITA  imm ) ; $85 BIND
 :NONAME ( BITA  dir ) ; $95 BIND
