@@ -454,9 +454,9 @@ $01 VALUE 'C    \ Carry
 : CLR ( addr -- ) 0 SWAP C! $F0 ANDCC ;
 :NONAME ( CLRA  inh ) _A         CLR ; $4F BIND
 :NONAME ( CLRB  inh ) _B         CLR ; $5F BIND
-:NONAME ( CLR   dir ) 'DP    TC@ CLR ; $0F BIND
-:NONAME ( CLR   ext ) 'EA    TC@ CLR ; $7F BIND
-:NONAME ( CLR   ind ) 'IND   TC@ CLR ; $6F BIND
+:NONAME ( CLR   dir ) 'DP  RAM + CLR ; $0F BIND
+:NONAME ( CLR   ext ) 'EA  RAM + CLR ; $7F BIND
+:NONAME ( CLR   ind ) 'IND RAM + CLR ; $6F BIND
 
 \ CMP8: performs REG + 1complement(operand) + 1 and updates flags
 : CMP8 ( byte reg -- ) SWAP NOT $FF AND 1+ ADD DROP ;
