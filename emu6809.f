@@ -506,11 +506,11 @@ $01 VALUE 'C    \ Carry
 :NONAME ( CMPY  ind ) 'IND   TW@ CMPY ; $10AC BIND2
 
 : COM ( addr -- ) DUP C@ NOT $FF AND >N >Z 'V CLEAR 'C SET SWAP C! ;
-:NONAME ( COM   dir ) 'DP    TW@ COM ; $03 BIND
-:NONAME ( COM   ext ) 'EA    TW@ COM ; $73 BIND
-:NONAME ( COM   ind ) 'IND   TW@ COM ; $63 BIND
-:NONAME ( COMA  inh ) _A         COM ; $43 BIND
-:NONAME ( COMB  inh ) _B         COM ; $53 BIND
+:NONAME ( COMA  inh ) _A          COM ; $43 BIND
+:NONAME ( COMB  inh ) _B          COM ; $53 BIND
+:NONAME ( COM   dir ) 'DP   RAM + COM ; $03 BIND
+:NONAME ( COM   ext ) 'EA   RAM + COM ; $73 BIND
+:NONAME ( COM   ind ) 'IND  RAM + COM ; $63 BIND
 
 :NONAME ( CWAI  imm ) ; $3C BIND
 
