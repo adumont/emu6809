@@ -200,12 +200,15 @@ $01 VALUE 'C    \ Carry
 
 : >N   ( b -- b ) DUP   $80 AND    'N UPDATE-FLAG ; \ non-droppy, byte version
 : >Z   ( b -- b ) DUP   $FF AND 0= 'Z UPDATE-FLAG ; \ non-droppy, byte version
+: >NZ  >N  >Z ;
+
 : >NW  ( w -- w ) DUP $8000 AND    'N UPDATE-FLAG ; \ non-droppy, word version
 : >ZW  ( w -- w ) DUP $FFFF AND 0= 'Z UPDATE-FLAG ; \ non-droppy, word version
+: >NZW >NW >ZW ;
+
 : >H   ( f --   )                  'H UPDATE-FLAG ; \ this one is droppy
 : >V   ( f --   )                  'V UPDATE-FLAG ; \ this one is droppy
 : >C   ( f --   )                  'C UPDATE-FLAG ; \ this one is droppy
-: >NZ >N >Z ;
 
 : N>   (   -- f ) _CC C@ 'N AND TF ;
 : Z>   (   -- f ) _CC C@ 'Z AND TF ;
