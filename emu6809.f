@@ -390,6 +390,18 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ORB   ext ) 'EA   TC@ ORB ; $FA BIND
 :NONAME ( ORB   ind ) 'IND  TC@ ORB ; $EA BIND
 
+: BITA ( addr reg -- ) _A C@ AND >NZ 'V CLEAR ;
+:NONAME ( BITA  imm ) BYTE@     BITA ; $85 BIND
+:NONAME ( BITA  dir ) 'DP   TC@ BITA ; $95 BIND
+:NONAME ( BITA  ext ) 'EA   TC@ BITA ; $B5 BIND
+:NONAME ( BITA  ind ) 'IND  TC@ BITA ; $A5 BIND
+
+: BITB ( addr reg -- ) _B C@ AND >NZ 'V CLEAR ;
+:NONAME ( BITB  imm ) BYTE@     BITB ; $C5 BIND
+:NONAME ( BITB  dir ) 'DP   TC@ BITB ; $D5 BIND
+:NONAME ( BITB  ext ) 'EA   TC@ BITB ; $F5 BIND
+:NONAME ( BITB  ind ) 'IND  TC@ BITB ; $E5 BIND
+
 : ASL>V ( byte -- byte ) DUP  $80 AND TF OVER $40 AND TF XOR >V ; \ set V for ASL, non-droppy
 : ASL>C ( byte -- byte ) DUP $100 AND >C ; \ set C for ASL, non-droppy
 
@@ -429,16 +441,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ROR   dir ) 'DP   RAM + ROR ; $06 BIND
 :NONAME ( ROR   ext ) 'EA   RAM + ROR ; $76 BIND
 :NONAME ( ROR   ind ) 'IND  RAM + ROR ; $66 BIND
-
-:NONAME ( BITA  imm ) ; $85 BIND
-:NONAME ( BITA  dir ) ; $95 BIND
-:NONAME ( BITA  ext ) ; $B5 BIND
-:NONAME ( BITA  ind ) ; $A5 BIND
-
-:NONAME ( BITB  imm ) ; $C5 BIND
-:NONAME ( BITB  dir ) ; $D5 BIND
-:NONAME ( BITB  ext ) ; $F5 BIND
-:NONAME ( BITB  ind ) ; $E5 BIND
 
 : ?BRA ( f -- ) BYTE@ SWAP IF SIGNEX8 _PC W@ + _PC! ELSE DROP THEN ; \ branch if flag is set
 :NONAME ( BRA   rel ) 1                    ?BRA ; $20 BIND \ Always
