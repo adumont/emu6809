@@ -578,11 +578,11 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( MUL   inh ) _A C@ _B C@ * >ZW DUP $80 AND >C _D W! ; $3D BIND
 
-:NONAME ( NEG   ext ) ; $70 BIND
-:NONAME ( NEG   ind ) ; $60 BIND
-
-:NONAME ( NEGA  inh ) _A C@ NEG $FF AND LDA ; $40 BIND
-:NONAME ( NEGB  inh ) _B C@ NEG $FF AND LDB ; $50 BIND
+: MEMNEG ( addr -- ) DUP C@ SIGNEX8 DUP $80 = IF 'V SET ELSE 'V CLEAR THEN NEG ASL>C >NZ SWAP C! ;
+:NONAME ( NEGA  inh ) _A          MEMNEG ; $40 BIND
+:NONAME ( NEGB  inh ) _B          MEMNEG ; $50 BIND
+:NONAME ( NEG   ext ) 'EA   RAM + MEMNEG ; $70 BIND
+:NONAME ( NEG   ind ) 'IND  RAM + MEMNEG ; $60 BIND
 
 :NONAME ( NOP   inh ) ; $12 BIND
 
