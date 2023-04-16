@@ -495,9 +495,9 @@ $01 VALUE 'C    \ Carry
 :NONAME ( INCA  inh ) ; $4C BIND
 :NONAME ( INCB  inh ) ; $5C BIND
 
-:NONAME ( JMP   dir ) ; $0E BIND
-:NONAME ( JMP   ext ) ; $7E BIND
-:NONAME ( JMP   ind ) ; $6E BIND
+:NONAME ( JMP   dir ) 'DP  _PC! ; $0E BIND
+:NONAME ( JMP   ext ) 'EA  _PC! ; $7E BIND
+:NONAME ( JMP   ind ) 'IND _PC! ; $6E BIND
 
 : ?LBR ( f -- ) WORD@ SWAP IF _PC W@ + _PC! ELSE DROP THEN ; \ long branch if flag is set
 :NONAME ( LBRA  rel ) 1                    ?LBR ; $16   BIND  \ Always
