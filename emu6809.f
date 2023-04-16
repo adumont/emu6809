@@ -346,19 +346,19 @@ $01 VALUE 'C    \ Carry
   $FFFF AND >NW >Z
 ;
 
-: ADDD ( b -- )  _D W@ ADD16 _D W! ;
+: ADDD  ( b -- )  _D W@ ADD16 _D W! ;
 :NONAME ( ADDD  imm ) WORD@      ADDD ; $C3 BIND
 :NONAME ( ADDD  dir ) 'DP    TW@ ADDD ; $D3 BIND
 :NONAME ( ADDD  ext ) 'EA    TW@ ADDD ; $F3 BIND
 :NONAME ( ADDD  ind ) 'IND   TW@ ADDD ; $E3 BIND
 
-: ANDA ( b -- ) _A C@ AND LDA ;
+: ANDA  ( b -- ) _A C@ AND LDA ;
 :NONAME ( ANDA  imm ) BYTE@      ANDA ; $84 BIND
 :NONAME ( ANDA  dir ) 'DP    TC@ ANDA ; $94 BIND
 :NONAME ( ANDA  ext ) 'EA    TC@ ANDA ; $B4 BIND
 :NONAME ( ANDA  ind ) 'IND   TC@ ANDA ; $A4 BIND
 
-: ANDB ( b -- ) _B C@ AND LDB ;
+: ANDB  ( b -- ) _B C@ AND LDB ;
 :NONAME ( ANDB  imm ) BYTE@      ANDB ; $C4 BIND
 :NONAME ( ANDB  dir ) 'DP    TC@ ANDB ; $D4 BIND
 :NONAME ( ANDB  ext ) 'EA    TC@ ANDB ; $F4 BIND
