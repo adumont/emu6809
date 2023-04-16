@@ -205,9 +205,10 @@ $01 VALUE 'C    \ Carry
 : >V   ( f --   )               'V UPDATE-FLAG ; \ this one is droppy
 : >C   ( f --   )               'C UPDATE-FLAG ; \ this one is droppy
 
-: C>   (   -- f ) _CC C@ 'C AND ;
-: D>   (   -- f ) _CC C@ 'D AND ;
-: I>   (   -- f ) _CC C@ 'I AND ;
+: N>   (   -- f ) _CC C@ 'N AND TF ;
+: Z>   (   -- f ) _CC C@ 'Z AND TF ;
+: V>   (   -- f ) _CC C@ 'V AND TF ;
+: C>   (   -- f ) _CC C@ 'C AND TF ;
 
 \ Addressing modes words
 : 'DP  ( -- addr ) BYTE@ _DP C@  8 LSHIFT OR ;   \ Direct Addressing
