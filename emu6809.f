@@ -657,37 +657,37 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( SEX   inh ) ; $1D BIND
 
-: STA ( addr -- ) _A C@ SWAP TC! ;
+: STA ( addr -- ) _A C@ >NZ 'V CLEAR SWAP TC! ;
 :NONAME ( STA   dir ) 'DP        STA ; $97 BIND
 :NONAME ( STA   ext ) 'EA        STA ; $B7 BIND
 :NONAME ( STA   ind ) 'IND       STA ; $A7 BIND
 
-: STB ( addr -- ) _B C@ SWAP TC! ;
+: STB ( addr -- ) _B C@ >NZ 'V CLEAR SWAP TC! ;
 :NONAME ( STB   dir ) 'DP        STB ; $D7 BIND
 :NONAME ( STB   ext ) 'EA        STB ; $F7 BIND
 :NONAME ( STB   ind ) 'IND       STB ; $E7 BIND
 
-: STD ( addr -- ) _D W@ SWAP TW! ;
+: STD ( addr -- ) _D W@ >NZW 'V CLEAR SWAP TW! ;
 :NONAME ( STD   dir ) 'DP        STD ; $DD BIND
 :NONAME ( STD   ext ) 'EA        STD ; $FD BIND
 :NONAME ( STD   ind ) 'IND       STD ; $ED BIND
 
-: STS ( addr -- ) _S W@ SWAP TW! ;
+: STS ( addr -- ) _S W@ >NZW 'V CLEAR SWAP TW! ;
 :NONAME ( STS   dir ) 'DP        STS ; $10DF BIND2
 :NONAME ( STS   ext ) 'EA        STS ; $10FF BIND2
 :NONAME ( STS   ind ) 'IND       STS ; $10EF BIND2
 
-: STU ( addr -- ) _U W@ SWAP TW! ;
+: STU ( addr -- ) _U W@ >NZW 'V CLEAR SWAP TW! ;
 :NONAME ( STU   dir ) 'DP        STU ; $DF BIND
 :NONAME ( STU   ext ) 'EA        STU ; $FF BIND
 :NONAME ( STU   ind ) 'IND       STU ; $EF BIND
 
-: STX ( addr -- ) _X W@ SWAP TW! ;
+: STX ( addr -- ) _X W@ >NZW 'V CLEAR SWAP TW! ;
 :NONAME ( STX   dir ) 'DP        STX ; $9F BIND
 :NONAME ( STX   ext ) 'EA        STX ; $BF BIND
 :NONAME ( STX   ind ) 'IND       STX ; $AF BIND
 
-: STY ( addr -- ) _Y W@ SWAP TW! ;
+: STY ( addr -- ) _Y W@ >NZW 'V CLEAR SWAP TW! ;
 :NONAME ( STY   dir ) 'DP        STY ; $109F BIND2
 :NONAME ( STY   ext ) 'EA        STY ; $10BF BIND2
 :NONAME ( STY   ind ) 'IND       STY ; $10AF BIND2
