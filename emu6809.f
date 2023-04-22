@@ -314,39 +314,40 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ANDCC imm ) BYTE@ ANDCC  ; $1C BIND
 :NONAME ( ORCC  imm ) BYTE@ ORCC   ; $1A BIND
 
-:NONAME ( ADCA  imm ) ; $89 BIND
-:NONAME ( ADCA  dir ) ; $99 BIND
-:NONAME ( ADCA  ext ) ; $B9 BIND
-:NONAME ( ADCA  ind ) ; $A9 BIND
+: ADD>H ( b b c -- b b c   ) >R OVER $0F AND OVER $0F AND + R@ + $10 AND >H R>      ; \ sets H for addition
+: ADD?V ( b b c -- b b c f ) >R OVER $7F AND OVER $7F AND + R@ + $80 AND TF R> SWAP ; \ returns flag used to set V
 
-:NONAME ( ADCB  imm ) ; $C9 BIND
-:NONAME ( ADCB  dir ) ; $D9 BIND
-:NONAME ( ADCB  ext ) ; $F9 BIND
-:NONAME ( ADCB  ind ) ; $E9 BIND
-
-: ADD>H ( b b --   ) OVER $0F AND OVER $0F AND + $10 AND >H ; \ sets H for addition
-: ADD?V ( b b -- f ) OVER $7F AND OVER $7F AND + $80 AND TF ; \ returns flag used to set V
-
-: ADD ( b b -- b ) \ sets flags
+: ADD ( b b c -- b ) \ sets flags
+  DUP >R
   ADD>H
-  ADD?V >R
-  + DUP
+  ADD?V >R RSWAP
+  + R> DUP
   $100 AND TF DUP >C
   R> = 0= >V
   >NZ
 ;
 
-: ADDA ( b -- )  _A C@ ADD _A C! ;
-:NONAME ( ADDA  imm ) BYTE@      ADDA ; $8B BIND
-:NONAME ( ADDA  dir ) 'DP    TC@ ADDA ; $9B BIND
-:NONAME ( ADDA  ext ) 'EA    TC@ ADDA ; $BB BIND
-:NONAME ( ADDA  ind ) 'IND   TC@ ADDA ; $AB BIND
+: ADCA ( b c -- )  _A C@ SWAP ADD _A C! ;
+:NONAME ( ADDA  imm ) BYTE@      0  ADCA ; $8B BIND
+:NONAME ( ADDA  dir ) 'DP    TC@ 0  ADCA ; $9B BIND
+:NONAME ( ADDA  ext ) 'EA    TC@ 0  ADCA ; $BB BIND
+:NONAME ( ADDA  ind ) 'IND   TC@ 0  ADCA ; $AB BIND
 
-: ADDB ( b -- )  _B C@ ADD _B C! ;
-:NONAME ( ADDB  imm ) BYTE@      ADDB ; $CB BIND
-:NONAME ( ADDB  dir ) 'DP    TC@ ADDB ; $DB BIND
-:NONAME ( ADDB  ext ) 'EA    TC@ ADDB ; $FB BIND
-:NONAME ( ADDB  ind ) 'IND   TC@ ADDB ; $EB BIND
+:NONAME ( ADCA  imm ) BYTE@      C> ADCA ; $89 BIND
+:NONAME ( ADCA  dir ) 'DP    TC@ C> ADCA ; $99 BIND
+:NONAME ( ADCA  ext ) 'EA    TC@ C> ADCA ; $B9 BIND
+:NONAME ( ADCA  ind ) 'IND   TC@ C> ADCA ; $A9 BIND
+
+: ADCB ( b c -- )  _B C@ SWAP ADD _B C! ;
+:NONAME ( ADDB  imm ) BYTE@      0  ADCB ; $CB BIND
+:NONAME ( ADDB  dir ) 'DP    TC@ 0  ADCB ; $DB BIND
+:NONAME ( ADDB  ext ) 'EA    TC@ 0  ADCB ; $FB BIND
+:NONAME ( ADDB  ind ) 'IND   TC@ 0  ADCB ; $EB BIND
+
+:NONAME ( ADCB  imm ) BYTE@      C> ADCB ; $C9 BIND
+:NONAME ( ADCB  dir ) 'DP    TC@ C> ADCB ; $D9 BIND
+:NONAME ( ADCB  ext ) 'EA    TC@ C> ADCB ; $F9 BIND
+:NONAME ( ADCB  ind ) 'IND   TC@ C> ADCB ; $E9 BIND
 
 : ?VW  ( w w -- f ) OVER $7FFF AND OVER $7FFF AND + $8000 AND TF ; \ returns flag used to set V
 
@@ -478,7 +479,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( CLR   ind ) 'IND RAM + CLR ; $6F BIND
 
 \ CMP8: performs REG + 1complement(operand) + 1 and updates flags
-: CMP8 ( byte reg -- ) SWAP NOT $FF AND 1+ ADD DROP ;
+: CMP8 ( byte reg -- ) SWAP NOT $FF AND 1+ 0 ADD DROP ;
 
 : CMPA ( -- reg ) _A C@ CMP8 ;
 :NONAME ( CMPA  imm ) BYTE@      CMPA ; $81 BIND
