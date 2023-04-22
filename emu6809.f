@@ -125,7 +125,7 @@ s" efhinzvcEFHINZVC" DROP CCSTR $10 CMOVE
 : .CC _CC C@ 8 0 DO DUP $80 AND IF 8 ELSE 0 THEN I + CCSTR + @ EMIT 2* LOOP DROP ;
 
 : STATUS
-  CR ." A  B X    Y    U    S    DP " .CC s" CC PC"
+  CR ." A  B X    Y    U    S    DP " .CC SPACE ." CC PC"
   CR _D W? _X W? _Y W? _U W? _S W? _DP C? _CC C@ DUP BIN. SPACE C. _PC W? ." > " DUMPPC ;
 
 -1 VALUE LASTINSTR
