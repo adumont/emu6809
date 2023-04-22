@@ -249,8 +249,8 @@ $01 VALUE 'C    \ Carry
       ( ,R +  8b off ) %1000 OF DUP W@ BYTE@ SIGNEX8 + R@ ?[] ENDOF
       ( ,R + 16b off ) %1001 OF DUP W@ WORD@         + R@ ?[] ENDOF
       ( D,R          ) %1011 OF DUP W@ _D W@         + R@ ?[] ENDOF
-      ( ,PC + 8b off ) %1100 OF LASTPC BYTE@ SIGNEX8 + R@ ?[] ENDOF \ LASTPC or _PC W@ ??
-      ( ,PC +16b off ) %1101 OF LASTPC WORD@         + R@ ?[] ENDOF \ LASTPC or _PC W@ ??
+      ( ,PC + 8b off ) %1100 OF BYTE@ SIGNEX8 _PC W@ + R@ ?[] ENDOF
+      ( ,PC +16b off ) %1101 OF WORD@         _PC W@ + R@ ?[] ENDOF
       ( [,Addr]      ) %1111 OF WORD@                  TW@    ENDOF
     ENDCASE
   THEN
