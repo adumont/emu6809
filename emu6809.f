@@ -210,6 +210,7 @@ $01 VALUE 'C    \ Carry
 : >V   ( f --   )                  'V UPDATE-FLAG ; \ this one is droppy
 : >C   ( f --   )                  'C UPDATE-FLAG ; \ this one is droppy
 
+: H>   (   -- f ) _CC C@ 'H AND TF ;
 : N>   (   -- f ) _CC C@ 'N AND TF ;
 : Z>   (   -- f ) _CC C@ 'Z AND TF ;
 : V>   (   -- f ) _CC C@ 'V AND TF ;
@@ -526,7 +527,16 @@ $01 VALUE 'C    \ Carry
 
 :NONAME ( CWAI  imm ) ; $3C BIND
 
-:NONAME ( DAA   inh ) ; $19 BIND
+\ Decimal Addition Adjust
+\ Logic described in The MC6809 Cookbook
+:NONAME ( DAA   inh )
+  C> >R
+  _A C@ $0F AND DUP >R
+  9 > H> OR IF $06 ELSE 0 THEN
+  C> _A C@ $F0 AND 4 RSHIFT DUP >R 9 > OR
+  R> 8 > R> 9 > AND OR IF $60 ELSE 0 THEN
+  OR _A C@ + >NZ DUP $100 AND R> OR >C _A C!
+; $19 BIND
 
 : DEC ( addr -- ) DUP C@ DUP $80 = IF 'V SET ELSE 'V CLEAR THEN 1- >NZ SWAP  C! ;
 :NONAME ( DECA  inh ) _A          DEC ; $4A BIND
