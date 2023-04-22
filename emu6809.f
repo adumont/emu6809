@@ -779,9 +779,10 @@ $01 VALUE 'C    \ Carry
   read-file throw TO LEN
 ;
 
-$4000 s" tests/ADDD.bin" load-rom
+$8100 s" tests/cputest.bin" load-rom
+$8100 ORG
 
-$4000 ORG
-1234 _D W!
-0300 _S W!
-0400 _U W!
+\ :NONAME _X W@ 83D9 = ; IS BREAKPOINT
+
+\ When breakpoint, use LASTPC to locate error
+9251 BREAKAT
