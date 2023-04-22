@@ -23,6 +23,7 @@ HEX
 : CLS CLEARSTACK ;
 : W, ( word -- ) $100 /MOD SWAP C, C, ; \ word comma
 : TF ( n -- f ) 0= 0= ; \ return TRUE (-1) or FALSE (0)
+: RSWAP R> R> R> SWAP >R >R >R ;
 
 : C? C@ C. ;
 : W? W@ W. ;
