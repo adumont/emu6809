@@ -238,10 +238,10 @@ $01 VALUE 'C    \ Carry
     \ b7 = 1
     R@ $F AND \ 4 lsb indicate mode
     CASE
-      ( ,R+          ) %0000 OF DUP W@ DUP 1+ ROT W!          ENDOF
-      ( ,R++         ) %0001 OF DUP W@ DUP 2+ ROT W!   R@ ?[] ENDOF
-      ( ,-R          ) %0010 OF DUP W@ 1- DUP ROT W!          ENDOF
-      ( ,--R         ) %0011 OF DUP W@ 1- DUP ROT W!   R@ ?[] ENDOF
+      ( ,R+          ) %0000 OF DUP W@ DUP  1+ ROT W!         ENDOF
+      ( ,R++         ) %0001 OF DUP W@ DUP  2+ ROT W!  R@ ?[] ENDOF
+      ( ,-R          ) %0010 OF DUP W@ 1-  DUP ROT W!         ENDOF
+      ( ,--R         ) %0011 OF DUP W@ 2 - DUP ROT W!  R@ ?[] ENDOF
       ( ,R           ) %0100 OF DUP W@                 R@ ?[] ENDOF
       ( A,R          ) %0110 OF DUP W@ _A C@ SIGNEX8 + R@ ?[] ENDOF
       ( B,R          ) %0101 OF DUP W@ _B C@ SIGNEX8 + R@ ?[] ENDOF
