@@ -317,11 +317,10 @@ $01 VALUE 'C    \ Carry
 : ADD>H ( b b c -- b b c   ) >R OVER $0F AND OVER $0F AND + R@ + $10 AND >H R>      ; \ sets H for addition
 : ADD?V ( b b c -- b b c f ) >R OVER $7F AND OVER $7F AND + R@ + $80 AND TF R> SWAP ; \ returns flag used to set V
 
-: ADD ( b b c -- b ) \ sets flags
-  DUP >R
+: ADD ( b b -- b ) \ sets flags
   ADD>H
-  ADD?V >R RSWAP
-  + R> DUP
+  ADD?V >R
+  + + DUP
   $100 AND TF DUP >C
   R> = 0= >V
   >NZ
