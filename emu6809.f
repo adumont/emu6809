@@ -245,19 +245,19 @@ $01 VALUE 'C    \ Carry
     \ b7 = 1
     R@ $F AND \ 4 lsb indicate mode
     CASE
-      ( ,R+          ) %0000 OF DUP W@ DUP  1+ ROT W!         ENDOF
-      ( ,R++         ) %0001 OF DUP W@ DUP  2+ ROT W!  R@ ?[] ENDOF
-      ( ,-R          ) %0010 OF DUP W@ 1-  DUP ROT W!         ENDOF
-      ( ,--R         ) %0011 OF DUP W@ 2 - DUP ROT W!  R@ ?[] ENDOF
-      ( ,R           ) %0100 OF DUP W@                 R@ ?[] ENDOF
-      ( A,R          ) %0110 OF DUP W@ _A C@ SIGNEX8 + R@ ?[] ENDOF
-      ( B,R          ) %0101 OF DUP W@ _B C@ SIGNEX8 + R@ ?[] ENDOF
-      ( ,R +  8b off ) %1000 OF DUP W@ BYTE@ SIGNEX8 + R@ ?[] ENDOF
-      ( ,R + 16b off ) %1001 OF DUP W@ WORD@         + R@ ?[] ENDOF
-      ( D,R          ) %1011 OF DUP W@ _D W@         + R@ ?[] ENDOF
-      ( ,PC + 8b off ) %1100 OF BYTE@ SIGNEX8 _PC W@ + R@ ?[] ENDOF
-      ( ,PC +16b off ) %1101 OF WORD@         _PC W@ + R@ ?[] ENDOF
-      ( [,Addr]      ) %1111 OF WORD@                  TW@    ENDOF
+      ( ,R+          ) %0000 OF DUP      W@ DUP  1+ ROT W!         ENDOF
+      ( ,R++         ) %0001 OF DUP      W@ DUP  2+ ROT W!  R@ ?[] ENDOF
+      ( ,-R          ) %0010 OF DUP      W@ 1-  DUP ROT W!         ENDOF
+      ( ,--R         ) %0011 OF DUP      W@ 2 - DUP ROT W!  R@ ?[] ENDOF
+      ( ,R           ) %0100 OF          W@                 R@ ?[] ENDOF
+      ( A,R          ) %0110 OF          W@ _A C@ SIGNEX8 + R@ ?[] ENDOF
+      ( B,R          ) %0101 OF          W@ _B C@ SIGNEX8 + R@ ?[] ENDOF
+      ( ,R +  8b off ) %1000 OF          W@ BYTE@ SIGNEX8 + R@ ?[] ENDOF
+      ( ,R + 16b off ) %1001 OF          W@ WORD@         + R@ ?[] ENDOF
+      ( D,R          ) %1011 OF          W@ _D W@         + R@ ?[] ENDOF
+      ( ,PC + 8b off ) %1100 OF DROP BYTE@ SIGNEX8 _PC W@ + R@ ?[] ENDOF
+      ( ,PC +16b off ) %1101 OF DROP WORD@         _PC W@ + R@ ?[] ENDOF
+      ( [,Addr]      ) %1111 OF DROP WORD@                  TW@    ENDOF
     ENDCASE
   THEN
   R> DROP
