@@ -13,10 +13,12 @@ Some things that make this emulator more challenging than Emu6502:
 - Some instructions manipulate 16 bit values while other manipulate 8 bit values. Impacts low level words like >N which now needs a 16-bit version (>NW)
 - Some instructions manipulate both 8 and 16 bit registers. Impacts is additional logic is needed in higher level words (like in TFR, EXG...)
 - Flag handling (like overflow V or half-carry H) in Condition Code Register
+- Books from the era have many uncorrected erratas (from wrong information about flags used in instructions to non-existant addressing modes!)
 
 ## Reference
 
 - Motorola 6809 datasheet
 - [The MC6809 CookBook (TAB BOOKS Inc)](https://colorcomputerarchive.com/repo/Documents/Books/The%20MC6809%20CookBook%20(TAB%20BOOKS%20Inc).pdf)
+- MO6809 - MC6809E Microprocessor Programming Manual
 - [MC6809 CPU Test Suite by W. Schwotzer](https://github.com/aladur/flexemu/blob/master/src/tools/cputest.txt)
 - [6809 ISA in Python](https://github.com/craigthomas/CoCoAssembler/blob/main/cocoasm/instruction.py) from which I generated my instructions words templates
