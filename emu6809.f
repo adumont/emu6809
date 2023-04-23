@@ -470,7 +470,7 @@ $01 VALUE 'C    \ Carry
 :NONAME ( BLE   rel ) V> N> = 0= Z>    OR  ?BRA ; $2F BIND \ V!=N or  Z set
 :NONAME ( BLT   rel ) V> N> = 0= Z> 0= AND ?BRA ; $2D BIND \ V!=N and Z clear
 
-: CLR ( addr -- ) 0 SWAP C! $F0 ANDCC ;
+: CLR ( addr -- ) 0 SWAP C! $F0 ANDCC 'Z SET ;
 :NONAME ( CLRA  inh ) _A         CLR ; $4F BIND
 :NONAME ( CLRB  inh ) _B         CLR ; $5F BIND
 :NONAME ( CLR   dir ) 'DP  RAM + CLR ; $0F BIND
