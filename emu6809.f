@@ -419,8 +419,8 @@ $01 VALUE 'C    \ Carry
 :NONAME ( ASLA  inh ) _A          ASL ; $48 BIND
 :NONAME ( ASLB  inh ) _B          ASL ; $58 BIND
 :NONAME ( ASL   dir ) 'DP   RAM + ASL ; $08 BIND
-:NONAME ( ASL   ind ) 'EA   RAM + ASL ; $68 BIND
-:NONAME ( ASL   ext ) 'IND  RAM + ASL ; $78 BIND
+:NONAME ( ASL   ext ) 'EA   RAM + ASL ; $78 BIND
+:NONAME ( ASL   ind ) 'IND  RAM + ASL ; $68 BIND
 
 : ASR>C DUP 1 AND >C ;
 
