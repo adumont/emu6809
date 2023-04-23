@@ -358,7 +358,7 @@ $01 VALUE 'C    \ Carry
   >NW >ZW
 ;
 
-: ADDD  ( b -- )  _D W@ ADD16 _D W! ;
+: ADDD  ( w -- )  _D W@ ADD16 _D W! ;
 :NONAME ( ADDD  imm ) WORD@      ADDD ; $C3 BIND
 :NONAME ( ADDD  dir ) 'DP    TW@ ADDD ; $D3 BIND
 :NONAME ( ADDD  ext ) 'EA    TW@ ADDD ; $F3 BIND
