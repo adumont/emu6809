@@ -477,53 +477,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( CLR   ext ) 'EA  RAM + CLR ; $7F BIND
 :NONAME ( CLR   ind ) 'IND RAM + CLR ; $6F BIND
 
-\ CMP8: performs REG + 1complement(operand) + 1 and updates flags
-: CMP8 ( byte reg -- ) SWAP NOT $FF AND 1+ 0 ADD DROP ;
-
-: CMPA ( -- reg ) _A C@ CMP8 ;
-:NONAME ( CMPA  imm ) BYTE@      CMPA ; $81 BIND
-:NONAME ( CMPA  dir ) 'DP    TC@ CMPA ; $91 BIND
-:NONAME ( CMPA  ext ) 'EA    TC@ CMPA ; $B1 BIND
-:NONAME ( CMPA  ind ) 'IND   TC@ CMPA ; $A1 BIND
-
-: CMPB ( -- reg ) _B C@ CMP8 ;
-:NONAME ( CMPB  imm ) BYTE@      CMPB ; $C1 BIND
-:NONAME ( CMPB  dir ) 'DP    TC@ CMPB ; $D1 BIND
-:NONAME ( CMPB  ext ) 'EA    TC@ CMPB ; $F1 BIND
-:NONAME ( CMPB  ind ) 'IND   TC@ CMPB ; $E1 BIND
-
-: CMP16 ( word wreg -- ) SWAP NOT $FFFF AND 1+ ADD16 DROP ;
-
-: CMPD ( -- reg ) _D W@ CMP16 ;
-:NONAME ( CMPD  imm ) WORD@      CMPD ; $1083 BIND2
-:NONAME ( CMPD  dir ) 'DP    TW@ CMPD ; $1093 BIND2
-:NONAME ( CMPD  ext ) 'EA    TW@ CMPD ; $10B3 BIND2
-:NONAME ( CMPD  ind ) 'IND   TW@ CMPD ; $10A3 BIND2
-
-: CMPS ( -- reg ) _S W@ CMP16 ;
-:NONAME ( CMPS  imm ) WORD@      CMPS ; $118C BIND2
-:NONAME ( CMPS  dir ) 'DP    TW@ CMPS ; $119C BIND2
-:NONAME ( CMPS  ext ) 'EA    TW@ CMPS ; $11BC BIND2
-:NONAME ( CMPS  ind ) 'IND   TW@ CMPS ; $11AC BIND2
-
-: CMPU ( -- reg ) _U W@ CMP16 ;
-:NONAME ( CMPU  imm ) WORD@      CMPU ; $1183 BIND2
-:NONAME ( CMPU  dir ) 'DP    TW@ CMPU ; $1193 BIND2
-:NONAME ( CMPU  ext ) 'EA    TW@ CMPU ; $11B3 BIND2
-:NONAME ( CMPU  ind ) 'IND   TW@ CMPU ; $11A3 BIND2
-
-: CMPX ( -- reg ) _X W@ CMP16 ;
-:NONAME ( CMPX  imm ) WORD@      CMPX ; $8C BIND
-:NONAME ( CMPX  dir ) 'DP    TW@ CMPX ; $9C BIND
-:NONAME ( CMPX  ext ) 'EA    TW@ CMPX ; $BC BIND
-:NONAME ( CMPX  ind ) 'IND   TW@ CMPX ; $AC BIND
-
-: CMPY ( -- reg ) _Y W@ CMP16 ;
-:NONAME ( CMPY  imm ) WORD@      CMPY ; $108C BIND2
-:NONAME ( CMPY  dir ) 'DP    TW@ CMPY ; $109C BIND2
-:NONAME ( CMPY  ext ) 'EA    TW@ CMPY ; $10BC BIND2
-:NONAME ( CMPY  ind ) 'IND   TW@ CMPY ; $10AC BIND2
-
 : COM ( addr -- ) DUP C@ NOT >NZ 'V CLEAR 'C SET SWAP C! ;
 :NONAME ( COMA  inh ) _A          COM ; $43 BIND
 :NONAME ( COMB  inh ) _B          COM ; $53 BIND
@@ -671,16 +624,6 @@ $01 VALUE 'C    \ Carry
 :NONAME ( RTI   inh ) ; $3B BIND
 :NONAME ( RTS   inh ) _S PULL ( PCH) _PC 1+ C! _S PULL ( PCL) _PC C! ; $39 BIND
 
-:NONAME ( SBCA  imm ) ; $82 BIND
-:NONAME ( SBCA  dir ) ; $92 BIND
-:NONAME ( SBCA  ind ) ; $A2 BIND
-:NONAME ( SBCA  ext ) ; $B2 BIND
-
-:NONAME ( SBCB  imm ) ; $C2 BIND
-:NONAME ( SBCB  dir ) ; $D2 BIND
-:NONAME ( SBCB  ind ) ; $E2 BIND
-:NONAME ( SBCB  ext ) ; $F2 BIND
-
 :NONAME ( SEX   inh ) _B C@ >NZ $80 AND IF $FF ELSE 0 THEN _A C! ; $1D BIND
 
 : STA ( addr -- ) _A C@ >NZ 'V CLEAR SWAP TC! ;
@@ -718,20 +661,96 @@ $01 VALUE 'C    \ Carry
 :NONAME ( STY   ext ) 'EA        STY ; $10BF BIND2
 :NONAME ( STY   ind ) 'IND       STY ; $10AF BIND2
 
-:NONAME ( SUBA  imm ) ; $80 BIND
-:NONAME ( SUBA  dir ) ; $90 BIND
-:NONAME ( SUBA  ext ) ; $B0 BIND
-:NONAME ( SUBA  ind ) ; $A0 BIND
+: SUB ( m c r -- r-m-c )
+  ROT >R R@ -ROT \ push m to R  ( R: m   )
+  >R + R@ SWAP -                ( R: m r )
+  DUP $100 AND >C
+  DUP R@ XOR $80 AND
+  R>  R> XOR $80 AND
+  AND >V
+  >NZ
+;
 
-:NONAME ( SUBB  imm ) ; $C0 BIND
-:NONAME ( SUBB  dir ) ; $D0 BIND
-:NONAME ( SUBB  ext ) ; $F0 BIND
-:NONAME ( SUBB  ind ) ; $E0 BIND
+: SBCA ( m c -- ) _A C@ SUB _A C! ;
+:NONAME ( SUBA  imm ) BYTE@      0  SBCA ; $80 BIND
+:NONAME ( SUBA  dir ) 'DP    TC@ 0  SBCA ; $90 BIND
+:NONAME ( SUBA  ext ) 'EA    TC@ 0  SBCA ; $B0 BIND
+:NONAME ( SUBA  ind ) 'IND   TC@ 0  SBCA ; $A0 BIND
 
-:NONAME ( SUBD  imm ) ; $83 BIND
-:NONAME ( SUBD  dir ) ; $93 BIND
-:NONAME ( SUBD  ext ) ; $B3 BIND
-:NONAME ( SUBD  ind ) ; $A3 BIND
+:NONAME ( SBCA  imm ) BYTE@      C> SBCA ; $82 BIND
+:NONAME ( SBCA  dir ) 'DP    TC@ C> SBCA ; $92 BIND
+:NONAME ( SBCA  ext ) 'EA    TC@ C> SBCA ; $B2 BIND
+:NONAME ( SBCA  ind ) 'IND   TC@ C> SBCA ; $A2 BIND
+
+: SBCB ( m c -- ) _B C@ SUB _B C! ;
+:NONAME ( SUBB  imm ) BYTE@      0  SBCB ; $C0 BIND
+:NONAME ( SUBB  dir ) 'DP    TC@ 0  SBCB ; $D0 BIND
+:NONAME ( SUBB  ext ) 'EA    TC@ 0  SBCB ; $F0 BIND
+:NONAME ( SUBB  ind ) 'IND   TC@ 0  SBCB ; $E0 BIND
+
+:NONAME ( SBCB  imm ) BYTE@      C> SBCB ; $C2 BIND
+:NONAME ( SBCB  dir ) 'DP    TC@ C> SBCB ; $D2 BIND
+:NONAME ( SBCB  ext ) 'EA    TC@ C> SBCB ; $F2 BIND
+:NONAME ( SBCB  ind ) 'IND   TC@ C> SBCB ; $E2 BIND
+
+\ TODO: we could remove the carry, there's no SBC16 instruction
+: SUB16 ( m c r -- r-m-c )
+  ROT >R R@ -ROT \ push m to R  ( R: m   )
+  >R + R@ SWAP -                ( R: m r )
+  DUP $10000 AND >C
+  DUP R@ XOR $8000 AND
+  R>  R> XOR $8000 AND
+  AND >V
+  >NZW
+;
+
+: SUBD ( w -- ) _D W@ SUB16 _D W! ;
+:NONAME ( SUBD  imm ) WORD@      0 SUBD ; $83 BIND
+:NONAME ( SUBD  dir ) 'DP    TW@ 0 SUBD ; $93 BIND
+:NONAME ( SUBD  ext ) 'EA    TW@ 0 SUBD ; $B3 BIND
+:NONAME ( SUBD  ind ) 'IND   TW@ 0 SUBD ; $A3 BIND
+
+: CMPA ( -- reg ) 0 _A C@ SUB DROP ;
+:NONAME ( CMPA  imm ) BYTE@      CMPA ; $81 BIND
+:NONAME ( CMPA  dir ) 'DP    TC@ CMPA ; $91 BIND
+:NONAME ( CMPA  ext ) 'EA    TC@ CMPA ; $B1 BIND
+:NONAME ( CMPA  ind ) 'IND   TC@ CMPA ; $A1 BIND
+
+: CMPB ( -- reg ) 0 _B C@ SUB DROP ;
+:NONAME ( CMPB  imm ) BYTE@      CMPB ; $C1 BIND
+:NONAME ( CMPB  dir ) 'DP    TC@ CMPB ; $D1 BIND
+:NONAME ( CMPB  ext ) 'EA    TC@ CMPB ; $F1 BIND
+:NONAME ( CMPB  ind ) 'IND   TC@ CMPB ; $E1 BIND
+
+: CMPD ( -- reg ) 0 _D W@ SUB16 ;
+:NONAME ( CMPD  imm ) WORD@      CMPD ; $1083 BIND2
+:NONAME ( CMPD  dir ) 'DP    TW@ CMPD ; $1093 BIND2
+:NONAME ( CMPD  ext ) 'EA    TW@ CMPD ; $10B3 BIND2
+:NONAME ( CMPD  ind ) 'IND   TW@ CMPD ; $10A3 BIND2
+
+: CMPS ( -- reg ) 0 _S W@ SUB16 ;
+:NONAME ( CMPS  imm ) WORD@      CMPS ; $118C BIND2
+:NONAME ( CMPS  dir ) 'DP    TW@ CMPS ; $119C BIND2
+:NONAME ( CMPS  ext ) 'EA    TW@ CMPS ; $11BC BIND2
+:NONAME ( CMPS  ind ) 'IND   TW@ CMPS ; $11AC BIND2
+
+: CMPU ( -- reg ) 0 _U W@ SUB16 ;
+:NONAME ( CMPU  imm ) WORD@      CMPU ; $1183 BIND2
+:NONAME ( CMPU  dir ) 'DP    TW@ CMPU ; $1193 BIND2
+:NONAME ( CMPU  ext ) 'EA    TW@ CMPU ; $11B3 BIND2
+:NONAME ( CMPU  ind ) 'IND   TW@ CMPU ; $11A3 BIND2
+
+: CMPX ( -- reg ) 0 _X W@ SUB16 ;
+:NONAME ( CMPX  imm ) WORD@      CMPX ; $8C BIND
+:NONAME ( CMPX  dir ) 'DP    TW@ CMPX ; $9C BIND
+:NONAME ( CMPX  ext ) 'EA    TW@ CMPX ; $BC BIND
+:NONAME ( CMPX  ind ) 'IND   TW@ CMPX ; $AC BIND
+
+: CMPY ( -- reg ) 0 _Y W@ SUB16 ;
+:NONAME ( CMPY  imm ) WORD@      CMPY ; $108C BIND2
+:NONAME ( CMPY  dir ) 'DP    TW@ CMPY ; $109C BIND2
+:NONAME ( CMPY  ext ) 'EA    TW@ CMPY ; $10BC BIND2
+:NONAME ( CMPY  ind ) 'IND   TW@ CMPY ; $10AC BIND2
 
 :NONAME ( SWI   inh ) ; $3F BIND
 :NONAME ( SWI2  inh ) ; $103F BIND2
@@ -795,7 +814,9 @@ $01 VALUE 'C    \ Carry
 $8100 s" tests/cputest.bin" load-rom
 $8100 ORG
 
+\ :NONAME ." ** 00 is not a valid opcode! **" ; $00 BIND
+
 \ :NONAME _X W@ 83D9 = ; IS BREAKPOINT
 
 \ When breakpoint, use LASTPC to locate error
-9251 BREAKAT
+925D BREAKAT
