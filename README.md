@@ -20,5 +20,8 @@ Some things that make this emulator more challenging than Emu6502:
 - Motorola 6809 datasheet
 - [The MC6809 CookBook (TAB BOOKS Inc)](https://colorcomputerarchive.com/repo/Documents/Books/The%20MC6809%20CookBook%20(TAB%20BOOKS%20Inc).pdf)
 - MO6809 - MC6809E Microprocessor Programming Manual
-- [MC6809 CPU Test Suite by W. Schwotzer](https://github.com/aladur/flexemu/blob/master/src/tools/cputest.txt)
 - [6809 ISA in Python](https://github.com/craigthomas/CoCoAssembler/blob/main/cocoasm/instruction.py) from which I generated my instructions words templates
+
+Tests suites:
+- [MC6809 CPU Test Suite by W. Schwotzer](https://github.com/aladur/flexemu/blob/master/src/tools/cputest.txt)
+- [Sean Riddle's Williams Emulation Test Suite](https://seanriddle.com/willyemutest04.asm)
