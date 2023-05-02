@@ -2,11 +2,17 @@
 
 ## Introduction
 
-Status: WIP, largely unfinished and yet untested
+This is a 6809 emulator written in gForth. You can load a 6809 binary rom and run it or step through.
+
+Interupt related instructions are not implemented (CWAI, RTI,SWI, SWI2, SWI3, SYNC).
+
+It is not cycle accurate.
+
+Status: Passes [MC6809 CPU Test Suite by W. Schwotzer](https://github.com/aladur/flexemu/blob/master/src/tools/cputest.txt)
 
 ## Challenges
 
-Some things that make this emulator more challenging than Emu6502:
+Some things that make this emulator more challenging than [Emu6502](https://github.com/adumont/emu6502):
 
 - Indirect addressing & the postbyte register bit assignments, Fig 16 page 17 of the datasheet
 - Some opcodes are 2 bytes long (10xx and 11xx), which break the simple opcode table and opcode decoding mechanism implemented in Emu6502. Impacts: OPCODES2 & BIND2 + new logic for FETCH and DECODE
