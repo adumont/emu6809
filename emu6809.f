@@ -14,8 +14,8 @@ HEX
 : W. ( word ) 4 X. SPACE ;
 : BIN. 8 0 DO DUP $80 AND IF ." 1" ELSE ." 0" THEN 2* LOOP DROP ;
 
-\ : GETC BEGIN KEY? UNTIL KEY ;   \ blocking
-: GETC KEY? IF KEY EXIT THEN 0 ;  \ non-blocking
+: GETC BEGIN KEY? UNTIL KEY ;   \ blocking
+\ : GETC KEY? IF KEY EXIT THEN 0 ;  \ non-blocking
 : 2+ 1+ 1+ ;
 : EXEC EXECUTE ;
 : NEG 0 SWAP - ;
