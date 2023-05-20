@@ -816,12 +816,15 @@ $01 VALUE 'C    \ Carry
   read-file throw TO LEN
 ;
 
-$8100 s" tests/cputest.bin" load-rom
-$8100 ORG
+\ $8100 s" tests/cputest.bin" load-rom
+\ $8100 ORG
+
+$8000 s" forth.bin" load-rom
+$8000 ORG
 
 \ :NONAME ." ** 00 is not a valid opcode! **" ; $00 BIND
 
 \ :NONAME _X W@ 83D9 = ; IS BREAKPOINT
 
 \ When breakpoint, use LASTPC to locate error
-925D BREAKAT
+\ 925A BREAKAT
