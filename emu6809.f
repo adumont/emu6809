@@ -82,6 +82,8 @@ DEFER WRIT_HOOK
   OR
 ;
 
+: TW? TW@ W. ;
+
 : TW!  ( word addr -- )
   >R
   $100 /MOD ( LO HI )
@@ -127,7 +129,10 @@ s" efhinzvcEFHINZVC" DROP CCSTR $10 CMOVE
 
 : STATUS
   CR ." A  B X    Y    U    S    DP " .CC SPACE ." CC PC"
-  CR _D W? _X W? _Y W? _U W? _S W? _DP C? _CC C@ DUP BIN. SPACE C. _PC W? ." > " DUMPPC ;
+  CR _D W? _X W? _Y W? _U W? _S W? _DP C? _CC C@ DUP BIN. SPACE C. _PC W? ." > " DUMPPC
+  CR 5 SPACES _X W@    TW? _Y W@    TW? _U W@    TW? _S W@    TW?
+  CR 5 SPACES _X W@ 2+ TW? _Y W@ 2+ TW? _U W@ 2+ TW? _S W@ 2+ TW?
+  ;
 
 -1 VALUE LASTINSTR
 
