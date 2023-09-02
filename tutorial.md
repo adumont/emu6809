@@ -12,19 +12,20 @@
 - [6809 Register Operations](#6809-register-operations)
     - [6809 stack operations](#6809-stack-operations)
 
-
 # Loading a program
 
 ## Loading a binary rom file
 
 The following phrase will load the `forth.bin` file at address `$8000` in the emulator, and set the `PC` to `$8000`.
 
-``` $8000 s" forth.bin" load-rom
+```
+$8000 s" forth.bin" load-rom
 ```
 
 Then we have to set the `PC` to `$8000`, we do that with:
 
-``` $8000 ORG
+```
+$8000 ORG
 ```
 
 Now we can start running the rom step by step or in continuous mode, see "Running a program" below.
@@ -44,11 +45,11 @@ Once we have finished to enter every byte of the program, we can start running i
 
 # Running a program
 
-Use N (or NEXT) to run a single instruction (at PC)
+Use `N` (or `NEXT`) to run a single instruction (at `PC`)
 
-Use k GO to run k instructions
+Use `k GO` to run `k` instructions
 
-Use RUN to run until a breakpoint is found
+Use `RUN` to run until a breakpoint is found (see the breakpoint section below).
 
 # Breakpoints
 
@@ -61,10 +62,6 @@ For that we just have to type the address of the breakpoint, and run BREAKAT:
 ```
 $802A BREAKAT
 ```
-
-`BREAKAT` sets the value of the breakpoint.
-
-By default, teh
 
 ## Implementing custom breakpoints
 
@@ -116,14 +113,17 @@ For 16 bits registers use W@, W! or W?
 
 We can push a byte to the any of the two stack using, for example:
 
+```
 AB _U PUSH
 C1 _S PUSH
+```
 
-Likewise we can also pull a byte from teh stacks using PULL:
+Likewise we can also pull a byte from the stacks using PULL:
 
+```
 _U PULL
-
-or _S PULL
+_S PULL
+```
 
 
 
