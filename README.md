@@ -1,6 +1,13 @@
 # Emu6809: Motorola 6809 Emulator in FORTH
 
-## Introduction
+- [Emu6809: Motorola 6809 Emulator in FORTH](#emu6809-motorola-6809-emulator-in-forth)
+- [Introduction](#introduction)
+- [How to use](#how-to-use)
+- [Challenges](#challenges)
+- [References](#references)
+
+
+# Introduction
 
 This is a 6809 emulator written in gForth. You can load a 6809 binary rom and run it or step through.
 
@@ -10,7 +17,11 @@ It is not cycle accurate.
 
 Status: Passes [MC6809 CPU Test Suite by W. Schwotzer](https://github.com/aladur/flexemu/blob/master/src/tools/cputest.txt)
 
-## Challenges
+# How to use
+
+I have written some [instructions here](tutorial.md).
+
+# Challenges
 
 Some things that make this emulator more challenging than [Emu6502](https://github.com/adumont/emu6502):
 
@@ -21,7 +32,7 @@ Some things that make this emulator more challenging than [Emu6502](https://gith
 - Flag handling (like overflow V or half-carry H) in Condition Code Register
 - Books from the era have many uncorrected erratas (from wrong information about flags used in instructions to non-existant addressing modes!)
 
-## Reference
+# References
 
 - Motorola 6809 datasheet
 - [The MC6809 CookBook (TAB BOOKS Inc)](https://colorcomputerarchive.com/repo/Documents/Books/The%20MC6809%20CookBook%20(TAB%20BOOKS%20Inc).pdf)
